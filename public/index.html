@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание карточки продукта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-item-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .file-item-remove {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .result-links {
+            margin-top: 15px;
+        }
+
+        .result-link {
+            display: inline-block;
+            margin-right: 15px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .result-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Создание карточки продукта</h1>
+            <p>Заполните информацию о косметическом продукте</p>
+        </div>
+
+        <div class="form-container">
+            <form id="productForm">
+                <div class="form-group">
+                    <label for="productName">Наименование продукта *</label>
+                    <input type="text" id="productName" name="productName" required
+                           placeholder="Например: Крем увлажняющий для лица">
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">Назначение *</label>
+                    <textarea id="purpose" name="purpose" required
+                              placeholder="Например: Интенсивное увлажнение и питание кожи лица"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="application">Применение *</label>
+                    <textarea id="application" name="application" required
+                              placeholder="Например: Наносить на чистую кожу лица утром и вечером"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>INCI документ (PDF) *</label>
+                    <div class="file-upload" onclick="document.getElementById('inciDoc').click()">
+                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-text">Нажмите для загрузки PDF документа с составом</div>
+                        <input type="file" id="inciDoc" accept=".pdf" required>
+                    </div>
+                    <div id="inciDocList" class="file-list"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Фотографии продукта</label>
+                    <div class="file-upload" onclick="document.getElementById('photos').click()">
+                        <div class="file-upload-icon">🖼️</div>
+                        <div class="file-upload-text">Нажмите для загрузки фотографий (можно несколько)</div>
+                        <input type="file" id="photos" accept="image/*" multiple>
+                    </div>
+                    <div id="photosList" class="file-list"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Создать карточку
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Обрабатываем данные...</p>
+                    <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                        Извлекаем текст из PDF, загружаем файлы и создаём карточку
+                    </p>
+                </div>
+
+                <div class="result" id="result">
+                    <div class="result-title" id="resultTitle"></div>
+                    <div id="resultMessage"></div>
+                    <div class="result-links" id="resultLinks"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Обработка загрузки INCI документа
+        document.getElementById('inciDoc').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const listDiv = document.getElementById('inciDocList');
+
+            if (file) {
+                listDiv.innerHTML = `
+                    <div class="file-item">
+                        <span class="file-item-name">📄 ${file.name}</span>
+                        <span class="file-item-remove" onclick="clearInciDoc()">✕</span>
+                    </div>
+                `;
+            }
+        });
+
+        // Обработка загрузки фотографий
+        document.getElementById('photos').addEventListener('change', function(e) {
+            const files = e.target.files;
+            const listDiv = document.getElementById('photosList');
+
+            listDiv.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                listDiv.innerHTML += `
+                    <div class="file-item">
+                        <span class="file-item-name">🖼️ ${file.name}</span>
+                        <span class="file-item-remove" onclick="removePhoto(${i})">✕</span>
+                    </div>
+                `;
+            }
+        });
+
+        function clearInciDoc() {
+            document.getElementById('inciDoc').value = '';
+            document.getElementById('inciDocList').innerHTML = '';
+        }
+
+        function removePhoto(index) {
+            const input = document.getElementById('photos');
+            const dt = new DataTransfer();
+            const files = input.files;
+
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(files[i]);
+                }
+            }
+
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
+        }
+
+        // Обработка отправки формы
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('productName', document.getElementById('productName').value);
+            formData.append('purpose', document.getElementById('purpose').value);
+            formData.append('application', document.getElementById('application').value);
+
+            const inciDoc = document.getElementById('inciDoc').files[0];
+            if (inciDoc) {
+                formData.append('inciDoc', inciDoc);
+            }
+
+            const photos = document.getElementById('photos').files;
+            for (let i = 0; i < photos.length; i++) {
+                formData.append('photos', photos[i]);
+            }
+
+            // Показываем загрузку
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('result').classList.remove('active');
+
+            try {
+                const response = await fetch('/api/create-card', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Скрываем загрузку
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('submitBtn').disabled = false;
+
+                // Показываем результат
+                const resultDiv = document.getElementById('result');
+                const resultTitle = document.getElementById('resultTitle');
+                const resultMessage = document.getElementById('resultMessage');
+                const resultLinks = document.getElementById('resultLinks');
+
+                if (data.success) {
+                    resultDiv.className = 'result success active';
+                    resultTitle.textContent = '✅ Карточка успешно создана!';
+                    resultMessage.innerHTML = `
+                        <p><strong>ID карточки:</strong> ${data.cardId}</p>
+                        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                            AI обработка запущена. Данные будут заполнены в таблице в течение минуты.
+                        </p>
+                    `;
+                    resultLinks.innerHTML = `
+                        <a href="${data.driveFolder.url}" target="_blank" class="result-link">
+                            📁 Открыть папку в Drive
+                        </a>
+                        <a href="https://docs.google.com/spreadsheets/d/${data.sheetId}" target="_blank" class="result-link">
+                            📊 Открыть таблицу
+                        </a>
+                    `;
+
+                    // Очистка формы
+                    document.getElementById('productForm').reset();
+                    document.getElementById('inciDocList').innerHTML = '';
+                    document.getElementById('photosList').innerHTML = '';
+                } else {
+                    resultDiv.className = 'result error active';
+                    resultTitle.textContent = '❌ Ошибка при создании карточки';
+                    resultMessage.textContent = data.error || 'Произошла неизвестная ошибка';
+                    resultLinks.innerHTML = '';
+                }
+
+            } catch (error) {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('submitBtn').disabled = false;
+
+                const resultDiv = document.getElementById('result');
+                resultDiv.className = 'result error active';
+                document.getElementById('resultTitle').textContent = '❌ Ошибка соединения';
+                document.getElementById('resultMessage').textContent = 'Не удалось отправить данные на сервер';
+                document.getElementById('resultLinks').innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
