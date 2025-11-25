@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const webhookRouter = require('./routes/webhook');
 const healthRouter = require('./routes/health');
+const batchService = require('./services/batchService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,22 @@ app.use((req, res, next) => {
 // Routes
 app.use('/health', healthRouter);
 app.use('/webhook', webhookRouter);
+
+// Batch processing endpoint
+app.post('/process-batch', async (req, res) => {
+  try {
+    // Run in background (don't wait for completion)
+    batchService.processUnprocessedRows().then(result => {
+      console.log('Batch processing completed:', result);
+    }).catch(err => {
+      console.error('Batch processing failed:', err);
+    });
+
+    res.json({ message: 'Batch processing started' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // 404 handler
 app.use((req, res) => {

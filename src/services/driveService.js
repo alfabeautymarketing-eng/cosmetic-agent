@@ -90,6 +90,70 @@ class DriveService {
   getFileUrl(fileId) {
     return `https://drive.google.com/file/d/${fileId}/view`;
   }
+
+  /**
+   * Ищет папку по имени
+   * @param {string} folderName - Имя папки
+   * @returns {Promise<string|null>} - ID папки или null
+   */
+  async findFolderByName(folderName) {
+    await this.initialize();
+
+    const query = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and '${this.parentFolderId}' in parents and trashed=false`;
+    const response = await this.drive.files.list({
+      q: query,
+      fields: 'files(id, name)',
+      spaces: 'drive'
+    });
+
+    if (response.data.files.length > 0) {
+      return response.data.files[0].id;
+    }
+    return null;
+  }
+
+  /**
+   * Получает список файлов в папке
+   * @param {string} folderId - ID папки
+   * @returns {Promise<Array>} - Список файлов
+   */
+  async listFiles(folderId) {
+    await this.initialize();
+
+    const query = `'${folderId}' in parents and trashed=false`;
+    const response = await this.drive.files.list({
+      q: query,
+      fields: 'files(id, name, mimeType)',
+      spaces: 'drive'
+    });
+
+    return response.data.files || [];
+  }
+
+  /**
+   * Скачивает файл
+   * @param {string} fileId - ID файла
+   * @returns {Promise<{buffer: Buffer, mimeType: string}>} - Данные файла
+   */
+  async getFile(fileId) {
+    await this.initialize();
+
+    const response = await this.drive.files.get({
+      fileId: fileId,
+      alt: 'media'
+    }, { responseType: 'arraybuffer' });
+
+    // Get mimeType from metadata
+    const metaResponse = await this.drive.files.get({
+      fileId: fileId,
+      fields: 'mimeType'
+    });
+
+    return {
+      buffer: Buffer.from(response.data),
+      mimeType: metaResponse.data.mimeType
+    };
+  }
 }
 
 module.exports = new DriveService();

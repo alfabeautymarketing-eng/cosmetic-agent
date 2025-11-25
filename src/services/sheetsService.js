@@ -121,6 +121,54 @@ class SheetsService {
       data: rows[rowIndex]
     };
   }
+
+  /**
+   * Получает все строки из таблицы
+   * @returns {Promise<Array>} - Массив строк (массивов значений)
+   */
+  async getRows() {
+    await this.initialize();
+
+    const response = await this.sheets.spreadsheets.values.get({
+      spreadsheetId: this.spreadsheetId,
+      range: `${this.sheetName}!A:N`
+    });
+
+    return response.data.values || [];
+  }
+
+  /**
+   * Обновляет строку данными AI
+   * @param {number} rowNumber - Номер строки (1-based)
+   * @param {Object} aiData - Данные от AI
+   */
+  async updateRowWithAiData(rowNumber, aiData) {
+    await this.initialize();
+
+    // Столбцы I-N (индексы 8-13)
+    // I: Активные ингредиенты без %
+    // J: Активные ингредиенты без %Англ
+    // K: состав БУКЛЕТ
+    // L: состав БУКЛЕТ англ
+    // M: Полный состав
+    // N: Полный состав англ
+
+    const values = [[
+      aiData.activeIngredients.join(', '),
+      aiData.activeIngredientsEn.join(', '),
+      aiData.bookletComposition,
+      aiData.bookletCompositionEn,
+      aiData.fullComposition,
+      aiData.fullCompositionEn
+    ]];
+
+    await this.sheets.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${this.sheetName}!I${rowNumber}:N${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+  }
 }
 
 module.exports = new SheetsService();
