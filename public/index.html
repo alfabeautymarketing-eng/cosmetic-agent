@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -48,8 +48,28 @@
             padding: 40px;
         }
 
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         label {
@@ -58,6 +78,10 @@
             margin-bottom: 10px;
             color: #333;
             font-size: 14px;
+        }
+
+        .required {
+            color: #dc3545;
         }
 
         input[type="text"],
@@ -82,6 +106,43 @@
             min-height: 100px;
         }
 
+        .upload-wrapper {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .upload-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .upload-tab {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .upload-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .upload-content {
+            display: none;
+        }
+
+        .upload-content.active {
+            display: block;
+        }
+
         .file-upload {
             border: 2px dashed #e0e0e0;
             border-radius: 10px;
@@ -89,7 +150,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: #f8f9fa;
+            background: white;
         }
 
         .file-upload:hover {
@@ -120,7 +181,8 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px;
-            background: #f8f9fa;
+            background: #fff;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             margin-bottom: 8px;
         }
@@ -137,14 +199,40 @@
             padding: 5px 10px;
         }
 
+        .url-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .url-input-wrapper input {
+            flex: 1;
+        }
+
+        .url-input-wrapper button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
         .submit-btn {
             width: 100%;
-            padding: 16px;
+            padding: 18px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
@@ -228,6 +316,18 @@
         .result-link:hover {
             text-decoration: underline;
         }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -239,42 +339,162 @@
 
         <div class="form-container">
             <form id="productForm">
-                <div class="form-group">
-                    <label for="productName">Наименование продукта *</label>
-                    <input type="text" id="productName" name="productName" required
-                           placeholder="Например: Крем увлажняющий для лица">
-                </div>
-
-                <div class="form-group">
-                    <label for="purpose">Назначение *</label>
-                    <textarea id="purpose" name="purpose" required
-                              placeholder="Например: Интенсивное увлажнение и питание кожи лица"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="application">Применение *</label>
-                    <textarea id="application" name="application" required
-                              placeholder="Например: Наносить на чистую кожу лица утром и вечером"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>INCI документ (PDF) *</label>
-                    <div class="file-upload" onclick="document.getElementById('inciDoc').click()">
-                        <div class="file-upload-icon">📄</div>
-                        <div class="file-upload-text">Нажмите для загрузки PDF документа с составом</div>
-                        <input type="file" id="inciDoc" accept=".pdf" required>
+                <!-- СЕКЦИЯ 1: Этикетка -->
+                <div class="form-section">
+                    <div class="section-title">📋 Этикетка продукта</div>
+                    <div class="form-group">
+                        <label>Загрузить этикетку (опционально)</label>
+                        <div class="upload-wrapper">
+                            <div class="upload-tabs">
+                                <div class="upload-tab active" onclick="switchTab('label', 'file')">📎 Файл</div>
+                                <div class="upload-tab" onclick="switchTab('label', 'url')">🔗 Ссылка</div>
+                                <div class="upload-tab" onclick="switchTab('label', 'paste')">📋 Вставить</div>
+                            </div>
+                            <div id="label-file" class="upload-content active">
+                                <div class="file-upload" onclick="document.getElementById('labelFile').click()">
+                                    <div class="file-upload-icon">📋</div>
+                                    <div class="file-upload-text">Загрузите этикетку (PDF, JPG, PNG, Word)</div>
+                                    <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                </div>
+                                <div id="labelFileList" class="file-list"></div>
+                            </div>
+                            <div id="label-url" class="upload-content">
+                                <div class="url-input-wrapper">
+                                    <input type="text" id="labelUrl" placeholder="Вставьте ссылку на Google Docs или файл">
+                                    <button type="button" onclick="addLabelUrl()">Добавить</button>
+                                </div>
+                                <div id="labelUrlList" class="file-list"></div>
+                            </div>
+                            <div id="label-paste" class="upload-content">
+                                <textarea id="labelText" placeholder="Вставьте текст этикетки сюда..." style="min-height: 120px;"></textarea>
+                            </div>
+                        </div>
+                        <div class="hint-text">AI автоматически заполнит поля ниже на основе этикетки</div>
                     </div>
-                    <div id="inciDocList" class="file-list"></div>
                 </div>
 
-                <div class="form-group">
-                    <label>Фотографии продукта</label>
-                    <div class="file-upload" onclick="document.getElementById('photos').click()">
-                        <div class="file-upload-icon">🖼️</div>
-                        <div class="file-upload-text">Нажмите для загрузки фотографий (можно несколько)</div>
-                        <input type="file" id="photos" accept="image/*" multiple>
+                <!-- СЕКЦИЯ 2: Основная информация -->
+                <div class="form-section">
+                    <div class="section-title">ℹ️ Основная информация</div>
+
+                    <div class="form-group">
+                        <label for="productName">Наименование продукта <span class="required">*</span></label>
+                        <input type="text" id="productName" name="productName" required
+                               placeholder="Например: Крем увлажняющий для лица">
                     </div>
-                    <div id="photosList" class="file-list"></div>
+
+                    <div class="form-group">
+                        <label for="purpose">Назначение <span class="required">*</span></label>
+                        <textarea id="purpose" name="purpose" required
+                                  placeholder="Например: Интенсивное увлажнение и питание кожи лица"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="application">Применение <span class="required">*</span></label>
+                        <textarea id="application" name="application" required
+                                  placeholder="Например: Наносить на чистую кожу лица утром и вечером"></textarea>
+                    </div>
+                </div>
+
+                <!-- СЕКЦИЯ 3: INCI состав -->
+                <div class="form-section">
+                    <div class="section-title">🧪 INCI состав</div>
+
+                    <div class="form-group">
+                        <label>INCI документ <span class="required">*</span></label>
+                        <div class="upload-wrapper">
+                            <div class="upload-tabs">
+                                <div class="upload-tab active" onclick="switchTab('inci', 'file')">📎 Файл</div>
+                                <div class="upload-tab" onclick="switchTab('inci', 'url')">🔗 Ссылка</div>
+                                <div class="upload-tab" onclick="switchTab('inci', 'text')">📝 Текст</div>
+                            </div>
+                            <div id="inci-file" class="upload-content active">
+                                <div class="file-upload" onclick="document.getElementById('inciDoc').click()">
+                                    <div class="file-upload-icon">📄</div>
+                                    <div class="file-upload-text">Загрузите INCI документ (PDF, JPG, PNG)</div>
+                                    <input type="file" id="inciDoc" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                                <div id="inciDocList" class="file-list"></div>
+                            </div>
+                            <div id="inci-url" class="upload-content">
+                                <div class="url-input-wrapper">
+                                    <input type="text" id="inciUrl" placeholder="Вставьте ссылку на Google Docs или файл">
+                                    <button type="button" onclick="addInciUrl()">Добавить</button>
+                                </div>
+                                <div id="inciUrlList" class="file-list"></div>
+                            </div>
+                            <div id="inci-text" class="upload-content">
+                                <textarea id="inciText" placeholder="Вставьте состав INCI с процентами, например:
+Aqua (Water) - 65%
+Glycerin - 15%
+Hyaluronic Acid - 5%
+..." style="min-height: 150px;"></textarea>
+                                <div class="hint-text">Важно: укажите процентное содержание каждого ингредиента</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- СЕКЦИЯ 4: Фотографии -->
+                <div class="form-section">
+                    <div class="section-title">📸 Фотографии продукта</div>
+
+                    <div class="form-group">
+                        <label>Фотографии (опционально)</label>
+                        <div class="upload-wrapper">
+                            <div class="upload-tabs">
+                                <div class="upload-tab active" onclick="switchTab('photos', 'file')">📎 Файл</div>
+                                <div class="upload-tab" onclick="switchTab('photos', 'url')">🔗 Ссылка</div>
+                            </div>
+                            <div id="photos-file" class="upload-content active">
+                                <div class="file-upload" onclick="document.getElementById('photos').click()">
+                                    <div class="file-upload-icon">🖼️</div>
+                                    <div class="file-upload-text">Загрузите фотографии (можно несколько)</div>
+                                    <input type="file" id="photos" accept="image/*" multiple>
+                                </div>
+                                <div id="photosList" class="file-list"></div>
+                            </div>
+                            <div id="photos-url" class="upload-content">
+                                <div class="url-input-wrapper">
+                                    <input type="text" id="photosUrl" placeholder="Вставьте ссылку на Google Drive папку или файл">
+                                    <button type="button" onclick="addPhotosUrl()">Добавить</button>
+                                </div>
+                                <div id="photosUrlList" class="file-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- СЕКЦИЯ 5: Коды и категории -->
+                <div class="form-section">
+                    <div class="section-title">🏷️ Коды и категории</div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="tnvedCode">Код ТН ВЭД</label>
+                            <input type="text" id="tnvedCode" placeholder="Например: 3304 99 000">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoryCode">Код категории</label>
+                            <input type="text" id="categoryCode" placeholder="Например: K-01">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tnvedArgument">Аргумент для обоснования кода ТН ВЭД</label>
+                        <textarea id="tnvedArgument" placeholder="Опишите, почему выбран этот код ТН ВЭД..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Категория</label>
+                        <input type="text" id="category" placeholder="Например: Косметика для лица">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryArgument">Аргумент для обоснования категории</label>
+                        <textarea id="categoryArgument" placeholder="Опишите, почему выбрана эта категория..."></textarea>
+                    </div>
                 </div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">
@@ -285,7 +505,7 @@
                     <div class="spinner"></div>
                     <p>Обрабатываем данные...</p>
                     <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                        Извлекаем текст из PDF, загружаем файлы и создаём карточку
+                        Извлекаем текст из документов, загружаем файлы и создаём карточку
                     </p>
                 </div>
 
@@ -299,11 +519,57 @@
     </div>
 
     <script>
+        // Переключение вкладок загрузки
+        function switchTab(section, tab) {
+            const tabs = document.querySelectorAll(`#${section}-file, #${section}-url, #${section}-text, #${section}-paste`).forEach(el => {
+                el.classList.remove('active');
+            });
+            const tabButtons = event.target.parentElement.querySelectorAll('.upload-tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${section}-${tab}`).classList.add('active');
+        }
+
+        // Обработка загрузки этикетки
+        document.getElementById('labelFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const listDiv = document.getElementById('labelFileList');
+            if (file) {
+                listDiv.innerHTML = `
+                    <div class="file-item">
+                        <span class="file-item-name">📋 ${file.name}</span>
+                        <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
+                    </div>
+                `;
+            }
+        });
+
+        function clearLabelFile() {
+            document.getElementById('labelFile').value = '';
+            document.getElementById('labelFileList').innerHTML = '';
+        }
+
+        function addLabelUrl() {
+            const url = document.getElementById('labelUrl').value;
+            if (url) {
+                document.getElementById('labelUrlList').innerHTML = `
+                    <div class="file-item">
+                        <span class="file-item-name">🔗 ${url}</span>
+                        <span class="file-item-remove" onclick="clearLabelUrl()">✕</span>
+                    </div>
+                `;
+                document.getElementById('labelUrl').value = '';
+            }
+        }
+
+        function clearLabelUrl() {
+            document.getElementById('labelUrlList').innerHTML = '';
+        }
+
         // Обработка загрузки INCI документа
         document.getElementById('inciDoc').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const listDiv = document.getElementById('inciDocList');
-
             if (file) {
                 listDiv.innerHTML = `
                     <div class="file-item">
@@ -314,11 +580,32 @@
             }
         });
 
+        function clearInciDoc() {
+            document.getElementById('inciDoc').value = '';
+            document.getElementById('inciDocList').innerHTML = '';
+        }
+
+        function addInciUrl() {
+            const url = document.getElementById('inciUrl').value;
+            if (url) {
+                document.getElementById('inciUrlList').innerHTML = `
+                    <div class="file-item">
+                        <span class="file-item-name">🔗 ${url}</span>
+                        <span class="file-item-remove" onclick="clearInciUrl()">✕</span>
+                    </div>
+                `;
+                document.getElementById('inciUrl').value = '';
+            }
+        }
+
+        function clearInciUrl() {
+            document.getElementById('inciUrlList').innerHTML = '';
+        }
+
         // Обработка загрузки фотографий
         document.getElementById('photos').addEventListener('change', function(e) {
             const files = e.target.files;
             const listDiv = document.getElementById('photosList');
-
             listDiv.innerHTML = '';
 
             for (let i = 0; i < files.length; i++) {
@@ -331,11 +618,6 @@
                 `;
             }
         });
-
-        function clearInciDoc() {
-            document.getElementById('inciDoc').value = '';
-            document.getElementById('inciDocList').innerHTML = '';
-        }
 
         function removePhoto(index) {
             const input = document.getElementById('photos');
@@ -352,24 +634,71 @@
             input.dispatchEvent(new Event('change'));
         }
 
+        function addPhotosUrl() {
+            const url = document.getElementById('photosUrl').value;
+            if (url) {
+                const listDiv = document.getElementById('photosUrlList');
+                listDiv.innerHTML += `
+                    <div class="file-item">
+                        <span class="file-item-name">🔗 ${url}</span>
+                        <span class="file-item-remove" onclick="this.parentElement.remove()">✕</span>
+                    </div>
+                `;
+                document.getElementById('photosUrl').value = '';
+            }
+        }
+
         // Обработка отправки формы
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = new FormData();
+
+            // Основная информация
             formData.append('productName', document.getElementById('productName').value);
             formData.append('purpose', document.getElementById('purpose').value);
             formData.append('application', document.getElementById('application').value);
 
+            // Этикетка
+            const labelFile = document.getElementById('labelFile').files[0];
+            if (labelFile) formData.append('labelFile', labelFile);
+
+            const labelUrl = document.getElementById('labelUrlList').textContent;
+            if (labelUrl) formData.append('labelUrl', labelUrl);
+
+            const labelText = document.getElementById('labelText').value;
+            if (labelText) formData.append('labelText', labelText);
+
+            // INCI документ
             const inciDoc = document.getElementById('inciDoc').files[0];
             if (inciDoc) {
                 formData.append('inciDoc', inciDoc);
             }
 
+            const inciUrl = document.getElementById('inciUrlList').textContent;
+            if (inciUrl) formData.append('inciUrl', inciUrl);
+
+            const inciText = document.getElementById('inciText').value;
+            if (inciText) formData.append('inciText', inciText);
+
+            // Фотографии
             const photos = document.getElementById('photos').files;
             for (let i = 0; i < photos.length; i++) {
                 formData.append('photos', photos[i]);
             }
+
+            const photosUrls = Array.from(document.querySelectorAll('#photosUrlList .file-item-name'))
+                .map(el => el.textContent.replace('🔗 ', ''));
+            if (photosUrls.length > 0) {
+                formData.append('photosUrls', JSON.stringify(photosUrls));
+            }
+
+            // Коды и категории
+            formData.append('tnvedCode', document.getElementById('tnvedCode').value || '');
+            formData.append('tnvedArgument', document.getElementById('tnvedArgument').value || '');
+            formData.append('categoryCode', document.getElementById('categoryCode').value || '');
+            formData.append('category', document.getElementById('category').value || '');
+            formData.append('categoryArgument', document.getElementById('categoryArgument').value || '');
 
             // Показываем загрузку
             document.getElementById('submitBtn').disabled = true;
@@ -414,8 +743,7 @@
 
                     // Очистка формы
                     document.getElementById('productForm').reset();
-                    document.getElementById('inciDocList').innerHTML = '';
-                    document.getElementById('photosList').innerHTML = '';
+                    document.querySelectorAll('.file-list').forEach(list => list.innerHTML = '');
                 } else {
                     resultDiv.className = 'result error active';
                     resultTitle.textContent = '❌ Ошибка при создании карточки';

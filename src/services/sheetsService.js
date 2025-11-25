@@ -30,10 +30,11 @@ class SheetsService {
   async addCardRow(rowData) {
     await this.initialize();
 
-    // Структура столбцов (согласно ТЗ):
+    // Новая структура столбцов:
     // ID | ID-Карточки | ID-Чат | Наименование | Назначение | Применение |
     // ИНСИ | ИНСИ док | Активные ингредиенты без % | Активные ингредиенты без %Англ |
-    // состав БУКЛЕТ | состав БУКЛЕТ англ | Полный состав | Полный состав англ
+    // состав БУКЛЕТ | состав БУКЛЕТ англ | Полный состав | Полный состав англ |
+    // Код ТН ВЭД | Аргумент кода | Код категории | Категория | Аргумент категории
 
     const values = [
       [
@@ -50,7 +51,12 @@ class SheetsService {
         '', // состав БУКЛЕТ (заполнит AI)
         '', // состав БУКЛЕТ англ (заполнит AI)
         '', // Полный состав (заполнит AI)
-        ''  // Полный состав англ (заполнит AI)
+        '', // Полный состав англ (заполнит AI)
+        rowData.tnvedCode || '', // Код ТН ВЭД
+        rowData.tnvedArgument || '', // Аргумент кода
+        rowData.categoryCode || '', // Код категории
+        rowData.category || '', // Категория
+        rowData.categoryArgument || '' // Аргумент категории
       ]
     ];
 
@@ -60,7 +66,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:N`, // A-N столбцы
+      range: `${this.sheetName}!A:S`, // A-S столбцы (19 столбцов)
       valueInputOption: 'USER_ENTERED',
       resource
     });
@@ -102,7 +108,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:N`
+      range: `${this.sheetName}!A:S`
     });
 
     const rows = response.data.values;
@@ -131,7 +137,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:N`
+      range: `${this.sheetName}!A:S`
     });
 
     return response.data.values || [];

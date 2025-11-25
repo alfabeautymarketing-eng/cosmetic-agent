@@ -129,7 +129,23 @@ class CardProcessor {
       // 2. Загружаем файлы
       const uploadedFiles = [];
 
-      // 2.1 INCI документ
+      // 2.1 Этикетка
+      if (data.labelFileBuffer) {
+        try {
+          const labelFileId = await driveService.uploadFile(
+            data.labelFilename || 'Label.pdf',
+            data.labelFileBuffer,
+            'application/pdf',
+            folderId
+          );
+          uploadedFiles.push({ name: data.labelFilename || 'Label.pdf', id: labelFileId });
+          console.log(`📋 Этикетка загружена`);
+        } catch (error) {
+          console.error('⚠️ Ошибка загрузки этикетки:', error.message);
+        }
+      }
+
+      // 2.2 INCI документ
       if (data.inciDocBuffer) {
         try {
           const inciFileId = await driveService.uploadFile(
@@ -182,14 +198,20 @@ class CardProcessor {
         application: data.application || '',
         inci: data.inci || '',
         inciDocLink,
-        folderUrl
+        folderUrl,
+        // Новые поля
+        tnvedCode: data.tnvedCode || '',
+        tnvedArgument: data.tnvedArgument || '',
+        categoryCode: data.categoryCode || '',
+        category: data.category || '',
+        categoryArgument: data.categoryArgument || ''
       };
 
       const sheetRow = await sheetsService.addCardRow(rowData);
       console.log(`📊 Запись добавлена в Google Sheets: строка ${sheetRow}`);
 
       // 6. TODO: Запускаем AI обработку асинхронно
-      // this.processWithAI(cardId, data.inci, sheetRow);
+      // this.processWithAI(cardId, data.inci, data.labelText, sheetRow);
 
       return {
         cardId,
