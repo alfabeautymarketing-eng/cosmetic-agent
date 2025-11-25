@@ -353,7 +353,7 @@
                             <div id="label-file" class="upload-content active">
                                 <div class="file-upload" onclick="document.getElementById('labelFile').click()">
                                     <div class="file-upload-icon">📋</div>
-                                    <div class="file-upload-text">Загрузите этикетку (PDF, JPG, PNG, Word)</div>
+                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
                                     <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                 </div>
                                 <div id="labelFileList" class="file-list"></div>
@@ -411,7 +411,7 @@
                             <div id="inci-file" class="upload-content active">
                                 <div class="file-upload" onclick="document.getElementById('inciDoc').click()">
                                     <div class="file-upload-icon">📄</div>
-                                    <div class="file-upload-text">Загрузите INCI документ (PDF, JPG, PNG)</div>
+                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
                                     <input type="file" id="inciDoc" accept=".pdf,.jpg,.jpeg,.png">
                                 </div>
                                 <div id="inciDocList" class="file-list"></div>
@@ -449,7 +449,7 @@ Hyaluronic Acid - 5%
                             <div id="photos-file" class="upload-content active">
                                 <div class="file-upload" onclick="document.getElementById('photos').click()">
                                     <div class="file-upload-icon">🖼️</div>
-                                    <div class="file-upload-text">Загрузите фотографии (можно несколько)</div>
+                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
                                     <input type="file" id="photos" accept="image/*" multiple>
                                 </div>
                                 <div id="photosList" class="file-list"></div>
@@ -529,6 +529,75 @@ Hyaluronic Acid - 5%
             event.target.classList.add('active');
             document.getElementById(`${section}-${tab}`).classList.add('active');
         }
+
+        // Универсальная функция для обработки вставки из буфера
+        function handlePaste(e, inputId, listId, fileType) {
+            e.preventDefault();
+            const items = e.clipboardData.items;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+
+                if (item.type.indexOf('image') !== -1) {
+                    const blob = item.getAsFile();
+                    const fileName = `pasted-image-${Date.now()}.png`;
+
+                    // Создаем новый File объект из Blob
+                    const file = new File([blob], fileName, { type: blob.type });
+
+                    // Добавляем файл в input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    document.getElementById(inputId).files = dataTransfer.files;
+
+                    // Обновляем отображение
+                    document.getElementById(listId).innerHTML = `
+                        <div class="file-item">
+                            <span class="file-item-name">${fileType === 'label' ? '📋' : fileType === 'inci' ? '📄' : '🖼️'} ${fileName} (из буфера)</span>
+                            <span class="file-item-remove" onclick="clearFile('${inputId}', '${listId}')">✕</span>
+                        </div>
+                    `;
+
+                    console.log('✅ Изображение вставлено из буфера');
+                    return;
+                }
+            }
+
+            alert('В буфере обмена нет изображения. Сделайте скриншот (Cmd+Shift+4 на Mac или Win+Shift+S на Windows) и попробуйте снова.');
+        }
+
+        // Универсальная функция очистки файла
+        function clearFile(inputId, listId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(listId).innerHTML = '';
+        }
+
+        // Добавляем обработчики paste для всех file-upload зон
+        document.addEventListener('DOMContentLoaded', function() {
+            // Этикетка
+            const labelFileUpload = document.querySelector('#label-file .file-upload');
+            if (labelFileUpload) {
+                labelFileUpload.addEventListener('paste', (e) => handlePaste(e, 'labelFile', 'labelFileList', 'label'));
+                labelFileUpload.setAttribute('tabindex', '0');
+                labelFileUpload.style.cursor = 'text';
+            }
+
+            // INCI документ
+            const inciFileUpload = document.querySelector('#inci-file .file-upload');
+            if (inciFileUpload) {
+                inciFileUpload.addEventListener('paste', (e) => handlePaste(e, 'inciDoc', 'inciDocList', 'inci'));
+                inciFileUpload.setAttribute('tabindex', '0');
+                inciFileUpload.style.cursor = 'text';
+            }
+
+            // Фотографии
+            const photosFileUpload = document.querySelector('#photos-file .file-upload');
+            if (photosFileUpload) {
+                photosFileUpload.addEventListener('paste', (e) => handlePaste(e, 'photos', 'photosList', 'photo'));
+                photosFileUpload.setAttribute('tabindex', '0');
+                photosFileUpload.style.cursor = 'text';
+            }
+        });
 
         // Обработка загрузки этикетки
         document.getElementById('labelFile').addEventListener('change', function(e) {
