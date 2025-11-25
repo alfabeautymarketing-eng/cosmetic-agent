@@ -1,8 +1,9 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const webhookRouter = require('./routes/webhook');
 const healthRouter = require('./routes/health');
-const batchService = require('./services/batchService');
+const formRouter = require('./routes/form');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Статические файлы (веб-форма)
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -20,21 +24,11 @@ app.use((req, res, next) => {
 // Routes
 app.use('/health', healthRouter);
 app.use('/webhook', webhookRouter);
+app.use('/api', formRouter);
 
-// Batch processing endpoint
-app.post('/process-batch', async (req, res) => {
-  try {
-    // Run in background (don't wait for completion)
-    batchService.processUnprocessedRows().then(result => {
-      console.log('Batch processing completed:', result);
-    }).catch(err => {
-      console.error('Batch processing failed:', err);
-    });
-
-    res.json({ message: 'Batch processing started' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Главная страница - редирект на форму
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // 404 handler

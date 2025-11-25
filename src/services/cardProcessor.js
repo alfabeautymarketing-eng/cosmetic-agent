@@ -110,6 +110,102 @@ class CardProcessor {
       throw error;
     }
   }
+
+  /**
+   * Обрабатывает карточку продукта с файлами из веб-формы
+   * @param {Object} data - Данные карточки с буферами файлов
+   * @returns {Object} - Результат обработки
+   */
+  async processCardWithFiles(data) {
+    const cardId = this.generateCardId();
+    console.log(`🔄 Начинаем обработку карточки ${cardId} из веб-формы`);
+
+    try {
+      // 1. Создаем папку в Google Drive
+      const folderName = `[${cardId}] ${data.productName}`;
+      const folderId = await driveService.createFolder(folderName);
+      console.log(`📁 Папка создана: ${folderName} (${folderId})`);
+
+      // 2. Загружаем файлы
+      const uploadedFiles = [];
+
+      // 2.1 INCI документ
+      if (data.inciDocBuffer) {
+        try {
+          const inciFileId = await driveService.uploadFile(
+            data.inciDocFilename || 'INCI.pdf',
+            data.inciDocBuffer,
+            'application/pdf',
+            folderId
+          );
+          uploadedFiles.push({ name: data.inciDocFilename || 'INCI.pdf', id: inciFileId });
+          console.log(`📄 INCI документ загружен`);
+        } catch (error) {
+          console.error('⚠️ Ошибка загрузки INCI документа:', error.message);
+        }
+      }
+
+      // 2.2 Фотографии
+      if (data.photos && data.photos.length > 0) {
+        for (let i = 0; i < data.photos.length; i++) {
+          try {
+            const photo = data.photos[i];
+            const photoFileId = await driveService.uploadFile(
+              photo.originalname,
+              photo.buffer,
+              photo.mimetype,
+              folderId
+            );
+            uploadedFiles.push({ name: photo.originalname, id: photoFileId });
+            console.log(`🖼 Фото ${i + 1} загружено: ${photo.originalname}`);
+          } catch (error) {
+            console.error(`⚠️ Ошибка загрузки фото ${i + 1}:`, error.message);
+          }
+        }
+      }
+
+      // 3. Получаем ссылку на папку
+      const folderUrl = driveService.getFolderUrl(folderId);
+
+      // 4. Получаем ссылку на INCI документ
+      const inciDocFile = uploadedFiles.find(f => f.name.includes('INCI') || f.name.endsWith('.pdf'));
+      const inciDocLink = inciDocFile
+        ? driveService.getFileUrl(inciDocFile.id)
+        : '';
+
+      // 5. Добавляем запись в Google Sheets
+      const rowData = {
+        cardId,
+        chatId: data.chatId,
+        productName: data.productName,
+        purpose: data.purpose || '',
+        application: data.application || '',
+        inci: data.inci || '',
+        inciDocLink,
+        folderUrl
+      };
+
+      const sheetRow = await sheetsService.addCardRow(rowData);
+      console.log(`📊 Запись добавлена в Google Sheets: строка ${sheetRow}`);
+
+      // 6. TODO: Запускаем AI обработку асинхронно
+      // this.processWithAI(cardId, data.inci, sheetRow);
+
+      return {
+        cardId,
+        driveFolder: {
+          id: folderId,
+          url: folderUrl,
+          uploadedFiles
+        },
+        sheetRow
+      };
+
+    } catch (error) {
+      console.error(`❌ Ошибка обработки карточки ${cardId}:`, error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new CardProcessor();
