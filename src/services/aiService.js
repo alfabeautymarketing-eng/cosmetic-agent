@@ -8,7 +8,8 @@ class AiService {
       console.warn('⚠️ GEMINI_API_KEY is not set. AI features will be disabled.');
     } else {
       this.genAI = new GoogleGenerativeAI(this.apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      // Используем gemini-1.5-pro как наиболее мощную доступную модель (по запросу "Gemini 3")
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
     }
   }
 
