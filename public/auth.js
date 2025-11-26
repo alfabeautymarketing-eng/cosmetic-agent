@@ -66,11 +66,19 @@ function showUserMenu() {
         document.getElementById('userAvatar').textContent = initials;
         document.getElementById('userNameNav').textContent = currentUser.name;
 
-        // Заполняем поля формы
-        document.getElementById('userEmail').value = currentUser.email;
-        document.getElementById('userName').value = currentUser.name;
-        document.getElementById('userEmail').readOnly = true;
-        document.getElementById('userName').readOnly = true;
+        // Заполняем поля формы (проверяем существование элементов)
+        const userEmailField = document.getElementById('userEmail');
+        const userNameField = document.getElementById('userName');
+
+        if (userEmailField) {
+            userEmailField.value = currentUser.email;
+            userEmailField.readOnly = true;
+        }
+
+        if (userNameField) {
+            userNameField.value = currentUser.name;
+            userNameField.readOnly = true;
+        }
     }
 }
 
@@ -113,11 +121,20 @@ function logout() {
     authToken = null;
     currentUser = null;
     showAuthButtons();
-    // Очищаем форму
-    document.getElementById('userEmail').value = '';
-    document.getElementById('userName').value = '';
-    document.getElementById('userEmail').readOnly = false;
-    document.getElementById('userName').readOnly = false;
+
+    // Очищаем форму (проверяем существование элементов)
+    const userEmailField = document.getElementById('userEmail');
+    const userNameField = document.getElementById('userName');
+
+    if (userEmailField) {
+        userEmailField.value = '';
+        userEmailField.readOnly = false;
+    }
+
+    if (userNameField) {
+        userNameField.value = '';
+        userNameField.readOnly = false;
+    }
 }
 
 /**
