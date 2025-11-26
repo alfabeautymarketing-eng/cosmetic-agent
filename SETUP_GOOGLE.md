@@ -49,11 +49,13 @@
 1. Открой скачанный JSON файл
 2. Найди поле `client_email` (например: `cosmetic-agent@your-project.iam.gserviceaccount.com`)
 3. Скопируй этот email
-4. Перейди в твою папку Google Drive: https://drive.google.com/drive/folders/1rELo6cM69I8_105PY-XKuJv1W33VDH1R
-5. Нажми правой кнопкой → **Share** (Поделиться)
-6. Вставь скопированный email
-7. Дай права **Editor** (Редактор)
-8. Нажми **Share** (убери галочку "Notify people" если не хочешь слать уведомление)
+4. **Обязательно используй Shared Drive!** Service Account не имеет своей квоты и не сможет загружать файлы в "Мой диск". Создай Shared Drive, помести туда корневую папку для карточек и выдай Service Account права.
+5. Перейди в корневую папку в Shared Drive: https://drive.google.com/drive/folders/1rELo6cM69I8_105PY-XKuJv1W33VDH1R (замени на свою)
+6. Нажми правой кнопкой → **Share** (Поделиться)
+7. Вставь скопированный email
+8. Дай права **Editor** или **Content manager**
+9. Нажми **Share** (убери галочку "Notify people" если не хочешь слать уведомление)
+10. Скопируй ID Shared Drive из URL и добавь его в `.env` как `GOOGLE_DRIVE_SHARED_DRIVE_ID`
 
 ### Google Sheets:
 

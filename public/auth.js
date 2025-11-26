@@ -50,21 +50,38 @@ async function checkAuth() {
  * Показывает кнопки авторизации
  */
 function showAuthButtons() {
-    document.getElementById('authButtons').classList.remove('hidden');
-    document.getElementById('userMenu').classList.add('hidden');
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+
+    if (authButtons) authButtons.classList.remove('hidden');
+    if (userMenu) userMenu.classList.add('hidden');
 }
 
 /**
  * Показывает меню пользователя
  */
 function showUserMenu() {
-    document.getElementById('authButtons').classList.add('hidden');
-    document.getElementById('userMenu').classList.remove('hidden');
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+
+    if (authButtons) authButtons.classList.add('hidden');
+    if (userMenu) userMenu.classList.remove('hidden');
 
     if (currentUser) {
-        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
-        document.getElementById('userNameNav').textContent = currentUser.name;
+        const initials = currentUser.name
+            ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase()
+            : '';
+
+        const avatarEl = document.getElementById('userAvatar');
+        const userNameEl = document.getElementById('userName');
+
+        if (avatarEl && initials) {
+            avatarEl.textContent = initials;
+        }
+
+        if (userNameEl) {
+            userNameEl.textContent = currentUser.name || '';
+        }
 
         // Заполняем поля формы (проверяем существование элементов)
         const userEmailField = document.getElementById('userEmail');

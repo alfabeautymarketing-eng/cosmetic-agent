@@ -30,33 +30,36 @@ class SheetsService {
   async addCardRow(rowData) {
     await this.initialize();
 
-    // Новая структура столбцов:
-    // ID | ID-Карточки | ID-Чат | Наименование | Назначение | Применение |
-    // ИНСИ | ИНСИ док | Активные ингредиенты без % | Активные ингредиенты без %Англ |
-    // состав БУКЛЕТ | состав БУКЛЕТ англ | Полный состав | Полный состав англ |
-    // Код ТН ВЭД | Аргумент кода | Код категории | Категория | Аргумент категории
+    // Новая структура столбцов (21 колонка A-U):
+    // A: ID | B: ID-Карточки | C: ID-Чат | D: Наименование |
+    // E: Этикетка ссылка | F: Этикетки инфа | G: Назначение | H: Применение |
+    // I: ИНСИ | J: ИНСИ док | K: Активные ингредиенты без % | L: Активные ингредиенты без %Англ |
+    // M: состав БУКЛЕТ | N: состав БУКЛЕТ англ | O: Полный состав | P: Полный состав англ |
+    // Q: Код ТН ВЭД | R: Аргумент кода | S: Код категории | T: Категория | U: Аргумент категории
 
     const values = [
       [
-        '', // ID (автоинкремент, можно оставить пустым)
-        rowData.cardId, // ID-Карточки
-        rowData.chatId, // ID-Чат
-        rowData.productName, // Наименование
-        rowData.purpose, // Назначение
-        rowData.application, // Применение
-        rowData.inci, // ИНСИ
-        rowData.inciDocLink, // ИНСИ док (ссылка на файл)
-        '', // Активные ингредиенты без % (заполнит AI)
-        '', // Активные ингредиенты без %Англ (заполнит AI)
-        '', // состав БУКЛЕТ (заполнит AI)
-        '', // состав БУКЛЕТ англ (заполнит AI)
-        '', // Полный состав (заполнит AI)
-        '', // Полный состав англ (заполнит AI)
-        rowData.tnvedCode || '', // Код ТН ВЭД
-        rowData.tnvedArgument || '', // Аргумент кода
-        rowData.categoryCode || '', // Код категории
-        rowData.category || '', // Категория
-        rowData.categoryArgument || '' // Аргумент категории
+        '', // A: ID (автоинкремент, можно оставить пустым)
+        rowData.cardId, // B: ID-Карточки
+        rowData.chatId, // C: ID-Чат (User ID)
+        rowData.productName, // D: Наименование
+        rowData.labelLink || '', // E: Этикетка ссылка (НОВАЯ)
+        rowData.labelInfo || '', // F: Этикетки инфа (НОВАЯ - заполнит AI)
+        rowData.purpose, // G: Назначение (было E)
+        rowData.application, // H: Применение (было F)
+        rowData.inci || '', // I: ИНСИ (было G)
+        rowData.inciDocLink || '', // J: ИНСИ док (было H)
+        '', // K: Активные ингредиенты без % (было I - заполнит AI)
+        '', // L: Активные ингредиенты без %Англ (было J - заполнит AI)
+        '', // M: состав БУКЛЕТ (было K - заполнит AI)
+        '', // N: состав БУКЛЕТ англ (было L - заполнит AI)
+        '', // O: Полный состав (было M - заполнит AI)
+        '', // P: Полный состав англ (было N - заполнит AI)
+        rowData.tnvedCode || '', // Q: Код ТН ВЭД (было O)
+        rowData.tnvedArgument || '', // R: Аргумент кода (было P)
+        rowData.categoryCode || '', // S: Код категории (было Q)
+        rowData.category || '', // T: Категория (было R)
+        rowData.categoryArgument || '' // U: Аргумент категории (было S)
       ]
     ];
 
@@ -66,7 +69,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:S`, // A-S столбцы (19 столбцов)
+      range: `${this.sheetName}!A:U`, // A-U столбцы (21 столбец, было 19)
       valueInputOption: 'USER_ENTERED',
       resource
     });
@@ -108,7 +111,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:S`
+      range: `${this.sheetName}!A:U` // A-U столбцы (21 столбец)
     });
 
     const rows = response.data.values;
@@ -137,7 +140,7 @@ class SheetsService {
 
     const response = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!A:S`
+      range: `${this.sheetName}!A:U` // A-U столбцы (21 столбец)
     });
 
     return response.data.values || [];
@@ -151,13 +154,13 @@ class SheetsService {
   async updateRowWithAiData(rowNumber, aiData) {
     await this.initialize();
 
-    // Столбцы I-N (индексы 8-13)
-    // I: Активные ингредиенты без %
-    // J: Активные ингредиенты без %Англ
-    // K: состав БУКЛЕТ
-    // L: состав БУКЛЕТ англ
-    // M: Полный состав
-    // N: Полный состав англ
+    // Столбцы K-P (индексы 10-15) - сдвинуты на 2 позиции из-за новых колонок E и F
+    // K: Активные ингредиенты без %
+    // L: Активные ингредиенты без %Англ
+    // M: состав БУКЛЕТ
+    // N: состав БУКЛЕТ англ
+    // O: Полный состав
+    // P: Полный состав англ
 
     const values = [[
       aiData.activeIngredients.join(', '),
@@ -170,10 +173,49 @@ class SheetsService {
 
     await this.sheets.spreadsheets.values.update({
       spreadsheetId: this.spreadsheetId,
-      range: `${this.sheetName}!I${rowNumber}:N${rowNumber}`,
+      range: `${this.sheetName}!K${rowNumber}:P${rowNumber}`, // Изменено с I:N на K:P
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
+  }
+
+  /**
+   * Обновляет информацию об этикетке (ссылка и извлеченная информация)
+   * @param {number} rowNumber - Номер строки (1-based)
+   * @param {string} labelLink - Ссылка на файл этикетки
+   * @param {string} labelInfo - Извлеченная AI информация из этикетки
+   */
+  async updateLabelInfo(rowNumber, labelLink, labelInfo) {
+    await this.initialize();
+
+    // Столбцы E-F
+    // E: Этикетка ссылка
+    // F: Этикетки инфа
+
+    const values = [[labelLink, labelInfo]];
+
+    await this.sheets.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${this.sheetName}!E${rowNumber}:F${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    console.log(`✅ Label info updated for row ${rowNumber}`);
+  }
+
+  /**
+   * Обновляет название продукта
+   * @param {number} rowNumber - Номер строки (1-based)
+   * @param {string} newName - Новое название продукта
+   */
+  async updateProductName(rowNumber, newName) {
+    await this.initialize();
+
+    // Столбец D: Наименование
+    await this.updateCell(rowNumber, 'D', newName);
+
+    console.log(`✅ Product name updated to: ${newName}`);
   }
 }
 

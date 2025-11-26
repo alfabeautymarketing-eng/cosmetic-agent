@@ -5,6 +5,7 @@ const webhookRouter = require('./routes/webhook');
 const healthRouter = require('./routes/health');
 const formRouter = require('./routes/form');
 const { router: authRouter } = require('./routes/auth');
+const cardsRouter = require('./routes/cards');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 app.use('/health', healthRouter);
 app.use('/webhook', webhookRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/cards', cardsRouter); // Multi-stage card creation API
 app.use('/api', formRouter);
 
 // Главная страница - редирект на форму

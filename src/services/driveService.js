@@ -8,6 +8,7 @@ class DriveService {
   constructor() {
     this.drive = null;
     this.parentFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    this.sharedDriveId = process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID || null;
   }
 
   /**
@@ -19,6 +20,35 @@ class DriveService {
       this.drive = google.drive({ version: 'v3', auth });
     }
     return this.drive;
+  }
+
+  /**
+   * Helper: нужно ли использовать Shared Drive флаги
+   */
+  isSharedDrive() {
+    return Boolean(this.sharedDriveId);
+  }
+
+  /**
+   * Опции для файловых операций в Shared Drive
+   */
+  getCreateOptions() {
+    return this.isSharedDrive() ? { supportsAllDrives: true } : {};
+  }
+
+  getListOptions() {
+    return this.isSharedDrive()
+      ? {
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
+          corpora: 'drive',
+          driveId: this.sharedDriveId
+        }
+      : {};
+  }
+
+  getGetOptions() {
+    return this.isSharedDrive() ? { supportsAllDrives: true } : {};
   }
 
   /**
@@ -37,7 +67,8 @@ class DriveService {
 
     const response = await this.drive.files.create({
       requestBody: fileMetadata,
-      fields: 'id, name, webViewLink'
+      fields: 'id, name, webViewLink',
+      ...this.getCreateOptions()
     });
 
     return response.data.id;
@@ -67,7 +98,8 @@ class DriveService {
     const response = await this.drive.files.create({
       requestBody: fileMetadata,
       media: media,
-      fields: 'id, name, webViewLink'
+      fields: 'id, name, webViewLink',
+      ...this.getCreateOptions()
     });
 
     return response.data.id;
@@ -103,7 +135,7 @@ class DriveService {
     const response = await this.drive.files.list({
       q: query,
       fields: 'files(id, name)',
-      spaces: 'drive'
+      ...(this.isSharedDrive() ? this.getListOptions() : { spaces: 'drive' })
     });
 
     if (response.data.files.length > 0) {
@@ -124,7 +156,7 @@ class DriveService {
     const response = await this.drive.files.list({
       q: query,
       fields: 'files(id, name, mimeType)',
-      spaces: 'drive'
+      ...(this.isSharedDrive() ? this.getListOptions() : { spaces: 'drive' })
     });
 
     return response.data.files || [];
@@ -140,19 +172,107 @@ class DriveService {
 
     const response = await this.drive.files.get({
       fileId: fileId,
-      alt: 'media'
+      alt: 'media',
+      ...this.getGetOptions()
     }, { responseType: 'arraybuffer' });
 
     // Get mimeType from metadata
     const metaResponse = await this.drive.files.get({
       fileId: fileId,
-      fields: 'mimeType'
+      fields: 'mimeType',
+      ...this.getGetOptions()
     });
 
     return {
       buffer: Buffer.from(response.data),
       mimeType: metaResponse.data.mimeType
     };
+  }
+
+  /**
+   * Создает или находит папку пользователя
+   * @param {string} userId - User ID
+   * @returns {Promise<string>} - ID папки пользователя
+   */
+  async createUserFolder(userId) {
+    // Проверяем, существует ли папка пользователя
+    const existingFolder = await this.findFolderByName(userId);
+    if (existingFolder) {
+      console.log(`📁 User folder exists: ${userId}`);
+      return existingFolder;
+    }
+
+    // Создаем новую папку пользователя
+    console.log(`📁 Creating user folder: ${userId}`);
+    return await this.createFolder(userId);
+  }
+
+  /**
+   * Создает папку карточки внутри папки пользователя
+   * @param {string} cardFolderName - Название папки карточки (CardID + Название продукта)
+   * @param {string} userFolderId - ID папки пользователя
+   * @returns {Promise<string>} - ID папки карточки
+   */
+  async createCardFolder(cardFolderName, userFolderId) {
+    await this.initialize();
+
+    const fileMetadata = {
+      name: cardFolderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [userFolderId]
+    };
+
+    const response = await this.drive.files.create({
+      requestBody: fileMetadata,
+      fields: 'id, name, webViewLink',
+      ...this.getCreateOptions()
+    });
+
+    console.log(`📁 Card folder created: ${cardFolderName}`);
+    return response.data.id;
+  }
+
+  /**
+   * Создает подпапку "Фото" внутри папки карточки
+   * @param {string} cardFolderId - ID папки карточки
+   * @returns {Promise<string>} - ID папки фото
+   */
+  async createPhotosFolder(cardFolderId) {
+    await this.initialize();
+
+    const fileMetadata = {
+      name: 'Фото',
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [cardFolderId]
+    };
+
+    const response = await this.drive.files.create({
+      requestBody: fileMetadata,
+      fields: 'id, name',
+      ...this.getCreateOptions()
+    });
+
+    console.log(`📸 Photos folder created in card folder`);
+    return response.data.id;
+  }
+
+  /**
+   * Переименовывает папку
+   * @param {string} folderId - ID папки для переименования
+   * @param {string} newName - Новое название папки
+   */
+  async renameFolder(folderId, newName) {
+    await this.initialize();
+
+    await this.drive.files.update({
+      fileId: folderId,
+      requestBody: {
+        name: newName
+      },
+      ...this.getCreateOptions()
+    });
+
+    console.log(`📝 Folder renamed to: ${newName}`);
   }
 }
 

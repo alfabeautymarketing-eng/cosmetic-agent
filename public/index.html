@@ -18,319 +18,6 @@
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .form-container {
-            padding: 40px;
-        }
-
-        .form-section {
-            margin-bottom: 40px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .form-section:last-child {
-            border-bottom: none;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .required {
-            color: #dc3545;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .upload-wrapper {
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-
-        .upload-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .upload-tab {
-            padding: 8px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .upload-tab.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .upload-content {
-            display: none;
-        }
-
-        .upload-content.active {
-            display: block;
-        }
-
-        .file-upload {
-            border: 2px dashed #e0e0e0;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .file-upload:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-
-        .file-upload input[type="file"] {
-            display: none;
-        }
-
-        .file-upload-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .file-upload-text {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .file-list {
-            margin-top: 15px;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-
-        .file-item-name {
-            font-size: 14px;
-            color: #333;
-        }
-
-        .file-item-remove {
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px 10px;
-        }
-
-        .url-input-wrapper {
-            display: flex;
-            gap: 10px;
-        }
-
-        .url-input-wrapper input {
-            flex: 1;
-        }
-
-        .url-input-wrapper button {
-            padding: 12px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .hint-text {
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .result {
-            display: none;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .result.active {
-            display: block;
-        }
-
-        .result.success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .result.error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
-        .result-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .result-links {
-            margin-top: 15px;
-        }
-
-        .result-link {
-            display: inline-block;
-            margin-right: 15px;
-            color: #007bff;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .result-link:hover {
-            text-decoration: underline;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* Навигационный бар */
         .navbar {
             background: white;
@@ -342,6 +29,8 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-radius: 15px;
+            margin-bottom: 20px;
         }
 
         .navbar-brand {
@@ -420,7 +109,408 @@
             background: #e0e0e0;
         }
 
-        /* Модальные окна */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Progress Indicator */
+        .progress-sidebar {
+            min-width: 200px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            align-self: flex-start;
+            position: sticky;
+            top: 100px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .progress-step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .progress-step.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .progress-step.active .progress-number {
+            background: white;
+            color: #667eea;
+        }
+
+        .progress-step.completed .progress-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        /* Form Blocks */
+        .form-block {
+            margin-bottom: 30px;
+            padding: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-block.hidden {
+            display: none;
+        }
+
+        .form-block.active {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .block-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Upload Controls */
+        .upload-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .upload-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .upload-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .file-preview.has-file {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-item-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .file-item-remove {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px 10px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+
+        /* AI Results */
+        .ai-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .ai-results.hidden {
+            display: none;
+        }
+
+        .ai-result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .ai-result-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert.hidden {
+            display: none;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Модальные окна (копируем из старого кода) */
         .modal {
             display: none;
             position: fixed;
@@ -610,16 +700,28 @@
             outline: none;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
         .auth-content {
             display: block;
         }
 
         .auth-content.hidden {
             display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .progress-sidebar {
+                min-width: auto;
+                position: relative;
+                top: 0;
+            }
+
+            .progress-step {
+                flex-direction: row;
+            }
         }
     </style>
 </head>
@@ -641,206 +743,220 @@
     </nav>
 
     <div class="container">
-        <div class="header">
-            <h1>Создание карточки продукта</h1>
-            <p>Заполните информацию о косметическом продукте</p>
+        <!-- Progress Sidebar -->
+        <div class="progress-sidebar">
+            <div class="progress-step active" data-block="1">
+                <div class="progress-number">1</div>
+                <div class="progress-label">Наименование</div>
+            </div>
+            <div class="progress-step disabled" data-block="2">
+                <div class="progress-number">2</div>
+                <div class="progress-label">Информация</div>
+            </div>
+            <div class="progress-step disabled" data-block="3">
+                <div class="progress-number">3</div>
+                <div class="progress-label">INCI состав</div>
+            </div>
+            <div class="progress-step disabled" data-block="4">
+                <div class="progress-number">4</div>
+                <div class="progress-label">Фотографии</div>
+            </div>
+            <div class="progress-step disabled" data-block="5">
+                <div class="progress-number">5</div>
+                <div class="progress-label">Коды</div>
+            </div>
         </div>
 
-        <div class="form-container">
-            <form id="productForm">
-                <!-- СЕКЦИЯ 1: Этикетка -->
-                <div class="form-section">
-                    <div class="section-title">📋 Этикетка продукта</div>
-                    <div class="form-group">
-                        <label>Загрузить этикетку (опционально)</label>
-                        <div class="upload-wrapper">
-                            <div class="upload-tabs">
-                                <div class="upload-tab active" onclick="switchTab('label', 'file')">📎 Файл</div>
-                                <div class="upload-tab" onclick="switchTab('label', 'url')">🔗 Ссылка</div>
-                                <div class="upload-tab" onclick="switchTab('label', 'paste')">📋 Вставить</div>
-                            </div>
-                            <div id="label-file" class="upload-content active">
-                                <div class="file-upload" onclick="document.getElementById('labelFile').click()">
-                                    <div class="file-upload-icon">📋</div>
-                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
-                                    <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                                </div>
-                                <div id="labelFileList" class="file-list"></div>
-                            </div>
-                            <div id="label-url" class="upload-content">
-                                <div class="url-input-wrapper">
-                                    <input type="text" id="labelUrl" placeholder="Вставьте ссылку на Google Docs или файл">
-                                    <button type="button" onclick="addLabelUrl()">Добавить</button>
-                                </div>
-                                <div id="labelUrlList" class="file-list"></div>
-                            </div>
-                            <div id="label-paste" class="upload-content">
-                                <textarea id="labelText" placeholder="Вставьте текст этикетки сюда..." style="min-height: 120px;"></textarea>
-                            </div>
-                        </div>
-                        <div class="hint-text">AI автоматически заполнит поля ниже на основе этикетки</div>
-                    </div>
-                </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Создание карточки продукта</h1>
+                <p>Заполните информацию поэтапно</p>
+            </div>
 
-                <!-- СЕКЦИЯ 2: Основная информация -->
-                <div class="form-section">
-                    <div class="section-title">ℹ️ Основная информация</div>
-
-                    <div class="form-group">
-                        <label for="userEmail">Email <span class="required">*</span></label>
-                        <input type="email" id="userEmail" name="userEmail" required
-                               placeholder="Например: ivan@example.com">
-                        <div class="hint-text">Используется для идентификации пользователя и доступа к карточкам</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="userName">Ваше имя <span class="required">*</span></label>
-                        <input type="text" id="userName" name="userName" required
-                               placeholder="Например: Иван Иванов">
-                    </div>
+            <div class="form-container">
+                <!-- Block 1: Product Name Only -->
+                <div class="form-block active" id="block1">
+                    <div class="block-title">ℹ️ Наименование</div>
 
                     <div class="form-group">
                         <label for="productName">Наименование продукта <span class="required">*</span></label>
-                        <input type="text" id="productName" name="productName" required
-                               placeholder="Например: Крем увлажняющий для лица">
+                        <input type="text" id="productName" placeholder="Например: Крем увлажняющий для лица">
                     </div>
+
+                    <button class="btn-primary" onclick="createCard()" id="createCardBtn">
+                        Создать карточку
+                    </button>
+
+                    <div class="loading" id="loading1">
+                        <div class="spinner"></div>
+                        <p>Создаём карточку...</p>
+                    </div>
+
+                    <div class="alert success hidden" id="alert1"></div>
+                </div>
+
+                <!-- Block 2: Product Info (Purpose + Application) -->
+                <div class="form-block hidden" id="block2">
+                    <div class="block-title">📋 Информация</div>
 
                     <div class="form-group">
                         <label for="purpose">Назначение <span class="required">*</span></label>
-                        <textarea id="purpose" name="purpose" required
-                                  placeholder="Например: Интенсивное увлажнение и питание кожи лица"></textarea>
+                        <textarea id="purpose" placeholder="Например: Интенсивное увлажнение и питание кожи лица"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="application">Применение <span class="required">*</span></label>
-                        <textarea id="application" name="application" required
-                                  placeholder="Например: Наносить на чистую кожу лица утром и вечером"></textarea>
+                        <textarea id="application" placeholder="Например: Наносить на чистую кожу лица утром и вечером"></textarea>
                     </div>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">или загрузите этикетку для автозаполнения</p>
+
+                        <div class="upload-controls" style="justify-content: center;">
+                            <button class="upload-btn" onclick="document.getElementById('labelFile').click()">📎 Загрузить файл</button>
+                        </div>
+
+                        <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleLabelFile()">
+
+                        <div class="file-preview hidden" id="labelPreview" style="margin-top: 15px;">
+                            <p style="text-align:center; color: #666;">Загрузка...</p>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="loading2">
+                        <div class="spinner"></div>
+                        <p>Обрабатываем этикетку...</p>
+                    </div>
+
+                    <div class="ai-results hidden" id="labelResults">
+                        <div class="ai-result-title">🤖 Данные заполнены из этикетки</div>
+                        <div class="ai-result-content" id="labelResultsContent"></div>
+                    </div>
+
+                    <button class="btn-primary hidden" onclick="proceedToInci()" id="proceedInciBtn" style="margin-top: 20px;">
+                        Загрузить INCI →
+                    </button>
                 </div>
 
-                <!-- СЕКЦИЯ 3: INCI состав -->
-                <div class="form-section">
-                    <div class="section-title">🧪 INCI состав</div>
+                <!-- Block 3: INCI -->
+                <div class="form-block hidden" id="block3">
+                    <div class="block-title">🧪 INCI состав</div>
 
-                    <div class="form-group">
-                        <label>INCI документ <span class="required">*</span></label>
-                        <div class="upload-wrapper">
-                            <div class="upload-tabs">
-                                <div class="upload-tab active" onclick="switchTab('inci', 'file')">📎 Файл</div>
-                                <div class="upload-tab" onclick="switchTab('inci', 'url')">🔗 Ссылка</div>
-                                <div class="upload-tab" onclick="switchTab('inci', 'text')">📝 Текст</div>
+                    <div class="upload-controls">
+                        <button class="upload-btn active" onclick="setUploadMethod('inci', 'file')">📎 Файл</button>
+                        <button class="upload-btn" onclick="setUploadMethod('inci', 'url')">🔗 Ссылка</button>
+                        <button class="upload-btn" onclick="setUploadMethod('inci', 'paste')">📋 Вставить</button>
+                        <button class="upload-btn" onclick="setUploadMethod('inci', 'text')">📝 Текст</button>
+                    </div>
+
+                    <input type="file" id="inciFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleInciFile()">
+                    <textarea id="inciText" placeholder="Или вставьте текст состава INCI здесь..." style="display:none; min-height: 150px;"></textarea>
+
+                    <div class="file-preview" id="inciPreview">
+                        <p style="text-align:center; color: #666;">Выберите способ загрузки</p>
+                    </div>
+
+                    <button class="btn-primary" onclick="uploadInci()" id="uploadInciBtn" style="margin-top: 15px;">
+                        Обработать состав
+                    </button>
+
+                    <div class="loading" id="loading3">
+                        <div class="spinner"></div>
+                        <p>Обрабатываем состав INCI...</p>
+                    </div>
+
+                    <div class="ai-results hidden" id="inciResults">
+                        <div class="ai-result-title">🤖 Результаты AI обработки INCI</div>
+
+                        <!-- Full Composition -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 10px;">Полный состав</h3>
+                            <div class="tabs">
+                                <button class="tab active" onclick="showTab('full', 'ru')">🇷🇺 RU без %</button>
+                                <button class="tab" onclick="showTab('full', 'ru-percent')">🇷🇺 RU с %</button>
+                                <button class="tab" onclick="showTab('full', 'en')">🇬🇧 EN без %</button>
+                                <button class="tab" onclick="showTab('full', 'en-percent')">🇬🇧 EN с %</button>
                             </div>
-                            <div id="inci-file" class="upload-content active">
-                                <div class="file-upload" onclick="document.getElementById('inciDoc').click()">
-                                    <div class="file-upload-icon">📄</div>
-                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
-                                    <input type="file" id="inciDoc" accept=".pdf,.jpg,.jpeg,.png">
-                                </div>
-                                <div id="inciDocList" class="file-list"></div>
+                            <div class="tab-content active" id="full-ru"></div>
+                            <div class="tab-content" id="full-ru-percent"></div>
+                            <div class="tab-content" id="full-en"></div>
+                            <div class="tab-content" id="full-en-percent"></div>
+                        </div>
+
+                        <!-- Active Ingredients -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 10px;">Активные ингредиенты</h3>
+                            <div class="tabs">
+                                <button class="tab active" onclick="showTab('active', 'ru')">🇷🇺 RU</button>
+                                <button class="tab" onclick="showTab('active', 'en')">🇬🇧 EN</button>
                             </div>
-                            <div id="inci-url" class="upload-content">
-                                <div class="url-input-wrapper">
-                                    <input type="text" id="inciUrl" placeholder="Вставьте ссылку на Google Docs или файл">
-                                    <button type="button" onclick="addInciUrl()">Добавить</button>
-                                </div>
-                                <div id="inciUrlList" class="file-list"></div>
+                            <div class="tab-content active" id="active-ru"></div>
+                            <div class="tab-content" id="active-en"></div>
+                        </div>
+
+                        <!-- Booklet Description -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 10px;">Описание для буклета</h3>
+                            <div class="tabs">
+                                <button class="tab active" onclick="showTab('booklet', 'ru')">🇷🇺 RU</button>
+                                <button class="tab" onclick="showTab('booklet', 'en')">🇬🇧 EN</button>
                             </div>
-                            <div id="inci-text" class="upload-content">
-                                <textarea id="inciText" placeholder="Вставьте состав INCI с процентами, например:
-Aqua (Water) - 65%
-Glycerin - 15%
-Hyaluronic Acid - 5%
-..." style="min-height: 150px;"></textarea>
-                                <div class="hint-text">Важно: укажите процентное содержание каждого ингредиента</div>
-                            </div>
+                            <div class="tab-content active" id="booklet-ru"></div>
+                            <div class="tab-content" id="booklet-en"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- СЕКЦИЯ 4: Фотографии -->
-                <div class="form-section">
-                    <div class="section-title">📸 Фотографии продукта</div>
+                <!-- Block 4: Photos -->
+                <div class="form-block hidden" id="block4">
+                    <div class="block-title">📸 Фотографии продукта</div>
 
-                    <div class="form-group">
-                        <label>Фотографии (опционально)</label>
-                        <div class="upload-wrapper">
-                            <div class="upload-tabs">
-                                <div class="upload-tab active" onclick="switchTab('photos', 'file')">📎 Файл</div>
-                                <div class="upload-tab" onclick="switchTab('photos', 'url')">🔗 Ссылка</div>
-                            </div>
-                            <div id="photos-file" class="upload-content active">
-                                <div class="file-upload" onclick="document.getElementById('photos').click()">
-                                    <div class="file-upload-icon">🖼️</div>
-                                    <div class="file-upload-text">Нажмите для загрузки или Ctrl+V для вставки скриншота</div>
-                                    <input type="file" id="photos" accept="image/*" multiple>
-                                </div>
-                                <div id="photosList" class="file-list"></div>
-                            </div>
-                            <div id="photos-url" class="upload-content">
-                                <div class="url-input-wrapper">
-                                    <input type="text" id="photosUrl" placeholder="Вставьте ссылку на Google Drive папку или файл">
-                                    <button type="button" onclick="addPhotosUrl()">Добавить</button>
-                                </div>
-                                <div id="photosUrlList" class="file-list"></div>
-                            </div>
-                        </div>
+                    <div class="upload-controls">
+                        <button class="upload-btn active" onclick="setUploadMethod('photo', 'file')">📎 Файлы</button>
+                        <button class="upload-btn" onclick="setUploadMethod('photo', 'paste')">📋 Вставить</button>
                     </div>
+
+                    <input type="file" id="photoFiles" accept="image/*" multiple style="display:none" onchange="handlePhotoFiles()">
+
+                    <div class="file-preview" id="photoPreview">
+                        <p style="text-align:center; color: #666;">Выберите фотографии или нажмите Ctrl+V</p>
+                    </div>
+
+                    <button class="btn-primary" onclick="uploadPhotos()" id="uploadPhotosBtn" style="margin-top: 15px;">
+                        Загрузить фотографии
+                    </button>
+
+                    <div class="loading" id="loading4">
+                        <div class="spinner"></div>
+                        <p>Загружаем фотографии...</p>
+                    </div>
+
+                    <div class="alert success hidden" id="alert4"></div>
                 </div>
 
-                <!-- СЕКЦИЯ 5: Коды и категории -->
-                <div class="form-section">
-                    <div class="section-title">🏷️ Коды и категории</div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label for="tnvedCode">Код ТН ВЭД</label>
-                            <input type="text" id="tnvedCode" placeholder="Например: 3304 99 000">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoryCode">Код категории</label>
-                            <input type="text" id="categoryCode" placeholder="Например: K-01">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tnvedArgument">Аргумент для обоснования кода ТН ВЭД</label>
-                        <textarea id="tnvedArgument" placeholder="Опишите, почему выбран этот код ТН ВЭД..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="category">Категория</label>
-                        <input type="text" id="category" placeholder="Например: Косметика для лица">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="categoryArgument">Аргумент для обоснования категории</label>
-                        <textarea id="categoryArgument" placeholder="Опишите, почему выбрана эта категория..."></textarea>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    Создать карточку
-                </button>
-
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Обрабатываем данные...</p>
-                    <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                        Извлекаем текст из документов, загружаем файлы и создаём карточку
+                <!-- Block 5: Codes (Placeholder) -->
+                <div class="form-block hidden" id="block5">
+                    <div class="block-title">🏷️ Коды и категории</div>
+                    <p style="color: #666; font-size: 14px;">
+                        Этот блок будет заполняться автоматически на основе AI анализа.<br>
+                        В будущих версиях здесь можно будет редактировать коды ТН ВЭД и категории.
                     </p>
-                </div>
 
-                <div class="result" id="result">
-                    <div class="result-title" id="resultTitle"></div>
-                    <div id="resultMessage"></div>
-                    <div class="result-links" id="resultLinks"></div>
+                    <div class="alert success" style="margin-top: 20px;">
+                        <strong>✅ Карточка полностью создана!</strong><br>
+                        Все данные сохранены в Google Sheets и Drive.
+                    </div>
+
+                    <button class="btn-primary" onclick="location.reload()" style="margin-top: 20px;">
+                        Создать новую карточку
+                    </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно регистрации -->
+    <!-- Модальные окна авторизации (копируем из старого кода) -->
     <div id="registerModal" class="modal">
         <div class="modal-content" style="position: relative;">
             <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
@@ -1003,366 +1119,24 @@ Hyaluronic Acid - 5%
         </div>
     </div>
 
-    <!-- Подключаем auth.js -->
+    <!-- Подключаем скрипты -->
     <script src="/auth.js"></script>
+    <script src="/app.js"></script>
 
     <script>
         // Функция переключения вкладок авторизации
         function switchAuthTab(modal, method) {
-            // Скрываем все контенты
             document.querySelectorAll(`#${modal}-email, #${modal}-google, #${modal}-telegram`).forEach(el => {
                 el.classList.add('hidden');
             });
 
-            // Убираем активный класс со всех вкладок
             event.target.closest('.auth-tabs').querySelectorAll('.auth-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
 
-            // Показываем выбранный контент
             document.getElementById(`${modal}-${method}`).classList.remove('hidden');
-
-            // Активируем выбранную вкладку
             event.target.closest('.auth-tab').classList.add('active');
         }
-    </script>
-
-    <script>
-        // Переключение вкладок загрузки
-        function switchTab(section, tab) {
-            const tabs = document.querySelectorAll(`#${section}-file, #${section}-url, #${section}-text, #${section}-paste`).forEach(el => {
-                el.classList.remove('active');
-            });
-            const tabButtons = event.target.parentElement.querySelectorAll('.upload-tab');
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById(`${section}-${tab}`).classList.add('active');
-        }
-
-        // Универсальная функция для обработки вставки из буфера
-        function handlePaste(e, inputId, listId, fileType) {
-            e.preventDefault();
-            const items = e.clipboardData.items;
-
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-
-                if (item.type.indexOf('image') !== -1) {
-                    const blob = item.getAsFile();
-                    const fileName = `pasted-image-${Date.now()}.png`;
-
-                    // Создаем новый File объект из Blob
-                    const file = new File([blob], fileName, { type: blob.type });
-
-                    // Добавляем файл в input
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    document.getElementById(inputId).files = dataTransfer.files;
-
-                    // Обновляем отображение
-                    document.getElementById(listId).innerHTML = `
-                        <div class="file-item">
-                            <span class="file-item-name">${fileType === 'label' ? '📋' : fileType === 'inci' ? '📄' : '🖼️'} ${fileName} (из буфера)</span>
-                            <span class="file-item-remove" onclick="clearFile('${inputId}', '${listId}')">✕</span>
-                        </div>
-                    `;
-
-                    console.log('✅ Изображение вставлено из буфера');
-                    return;
-                }
-            }
-
-            alert('В буфере обмена нет изображения. Сделайте скриншот (Cmd+Shift+4 на Mac или Win+Shift+S на Windows) и попробуйте снова.');
-        }
-
-        // Универсальная функция очистки файла
-        function clearFile(inputId, listId) {
-            document.getElementById(inputId).value = '';
-            document.getElementById(listId).innerHTML = '';
-        }
-
-        // Добавляем обработчики paste для всех file-upload зон
-        document.addEventListener('DOMContentLoaded', function() {
-            // Этикетка
-            const labelFileUpload = document.querySelector('#label-file .file-upload');
-            if (labelFileUpload) {
-                labelFileUpload.addEventListener('paste', (e) => handlePaste(e, 'labelFile', 'labelFileList', 'label'));
-                labelFileUpload.setAttribute('tabindex', '0');
-                labelFileUpload.style.cursor = 'text';
-            }
-
-            // INCI документ
-            const inciFileUpload = document.querySelector('#inci-file .file-upload');
-            if (inciFileUpload) {
-                inciFileUpload.addEventListener('paste', (e) => handlePaste(e, 'inciDoc', 'inciDocList', 'inci'));
-                inciFileUpload.setAttribute('tabindex', '0');
-                inciFileUpload.style.cursor = 'text';
-            }
-
-            // Фотографии
-            const photosFileUpload = document.querySelector('#photos-file .file-upload');
-            if (photosFileUpload) {
-                photosFileUpload.addEventListener('paste', (e) => handlePaste(e, 'photos', 'photosList', 'photo'));
-                photosFileUpload.setAttribute('tabindex', '0');
-                photosFileUpload.style.cursor = 'text';
-            }
-        });
-
-        // Обработка загрузки этикетки
-        document.getElementById('labelFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const listDiv = document.getElementById('labelFileList');
-            if (file) {
-                listDiv.innerHTML = `
-                    <div class="file-item">
-                        <span class="file-item-name">📋 ${file.name}</span>
-                        <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
-                    </div>
-                `;
-            }
-        });
-
-        function clearLabelFile() {
-            document.getElementById('labelFile').value = '';
-            document.getElementById('labelFileList').innerHTML = '';
-        }
-
-        function addLabelUrl() {
-            const url = document.getElementById('labelUrl').value;
-            if (url) {
-                document.getElementById('labelUrlList').innerHTML = `
-                    <div class="file-item">
-                        <span class="file-item-name">🔗 ${url}</span>
-                        <span class="file-item-remove" onclick="clearLabelUrl()">✕</span>
-                    </div>
-                `;
-                document.getElementById('labelUrl').value = '';
-            }
-        }
-
-        function clearLabelUrl() {
-            document.getElementById('labelUrlList').innerHTML = '';
-        }
-
-        // Обработка загрузки INCI документа
-        document.getElementById('inciDoc').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const listDiv = document.getElementById('inciDocList');
-            if (file) {
-                listDiv.innerHTML = `
-                    <div class="file-item">
-                        <span class="file-item-name">📄 ${file.name}</span>
-                        <span class="file-item-remove" onclick="clearInciDoc()">✕</span>
-                    </div>
-                `;
-            }
-        });
-
-        function clearInciDoc() {
-            document.getElementById('inciDoc').value = '';
-            document.getElementById('inciDocList').innerHTML = '';
-        }
-
-        function addInciUrl() {
-            const url = document.getElementById('inciUrl').value;
-            if (url) {
-                document.getElementById('inciUrlList').innerHTML = `
-                    <div class="file-item">
-                        <span class="file-item-name">🔗 ${url}</span>
-                        <span class="file-item-remove" onclick="clearInciUrl()">✕</span>
-                    </div>
-                `;
-                document.getElementById('inciUrl').value = '';
-            }
-        }
-
-        function clearInciUrl() {
-            document.getElementById('inciUrlList').innerHTML = '';
-        }
-
-        // Обработка загрузки фотографий
-        document.getElementById('photos').addEventListener('change', function(e) {
-            const files = e.target.files;
-            const listDiv = document.getElementById('photosList');
-            listDiv.innerHTML = '';
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                listDiv.innerHTML += `
-                    <div class="file-item">
-                        <span class="file-item-name">🖼️ ${file.name}</span>
-                        <span class="file-item-remove" onclick="removePhoto(${i})">✕</span>
-                    </div>
-                `;
-            }
-        });
-
-        function removePhoto(index) {
-            const input = document.getElementById('photos');
-            const dt = new DataTransfer();
-            const files = input.files;
-
-            for (let i = 0; i < files.length; i++) {
-                if (i !== index) {
-                    dt.items.add(files[i]);
-                }
-            }
-
-            input.files = dt.files;
-            input.dispatchEvent(new Event('change'));
-        }
-
-        function addPhotosUrl() {
-            const url = document.getElementById('photosUrl').value;
-            if (url) {
-                const listDiv = document.getElementById('photosUrlList');
-                listDiv.innerHTML += `
-                    <div class="file-item">
-                        <span class="file-item-name">🔗 ${url}</span>
-                        <span class="file-item-remove" onclick="this.parentElement.remove()">✕</span>
-                    </div>
-                `;
-                document.getElementById('photosUrl').value = '';
-            }
-        }
-
-        // Обработка отправки формы
-        document.getElementById('productForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const formData = new FormData();
-
-            // Данные пользователя
-            formData.append('userEmail', document.getElementById('userEmail').value);
-            formData.append('userName', document.getElementById('userName').value);
-
-            // Основная информация
-            formData.append('productName', document.getElementById('productName').value);
-            formData.append('purpose', document.getElementById('purpose').value);
-            formData.append('application', document.getElementById('application').value);
-
-            // Этикетка
-            const labelFile = document.getElementById('labelFile').files[0];
-            if (labelFile) formData.append('labelFile', labelFile);
-
-            const labelUrl = document.getElementById('labelUrlList').textContent;
-            if (labelUrl) formData.append('labelUrl', labelUrl);
-
-            const labelText = document.getElementById('labelText').value;
-            if (labelText) formData.append('labelText', labelText);
-
-            // INCI документ
-            const inciDoc = document.getElementById('inciDoc').files[0];
-            if (inciDoc) {
-                formData.append('inciDoc', inciDoc);
-            }
-
-            const inciUrl = document.getElementById('inciUrlList').textContent;
-            if (inciUrl) formData.append('inciUrl', inciUrl);
-
-            const inciText = document.getElementById('inciText').value;
-            if (inciText) formData.append('inciText', inciText);
-
-            // Фотографии
-            const photos = document.getElementById('photos').files;
-            for (let i = 0; i < photos.length; i++) {
-                formData.append('photos', photos[i]);
-            }
-
-            const photosUrls = Array.from(document.querySelectorAll('#photosUrlList .file-item-name'))
-                .map(el => el.textContent.replace('🔗 ', ''));
-            if (photosUrls.length > 0) {
-                formData.append('photosUrls', JSON.stringify(photosUrls));
-            }
-
-            // Коды и категории
-            formData.append('tnvedCode', document.getElementById('tnvedCode').value || '');
-            formData.append('tnvedArgument', document.getElementById('tnvedArgument').value || '');
-            formData.append('categoryCode', document.getElementById('categoryCode').value || '');
-            formData.append('category', document.getElementById('category').value || '');
-            formData.append('categoryArgument', document.getElementById('categoryArgument').value || '');
-
-            // Проверяем авторизацию
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                alert('Для создания карточки необходимо авторизоваться');
-                openLoginModal();
-                return;
-            }
-
-            // Показываем загрузку
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('result').classList.remove('active');
-
-            try {
-                const response = await fetch('/api/create-card', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                // Скрываем загрузку
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('submitBtn').disabled = false;
-
-                // Проверяем авторизацию
-                if (response.status === 401) {
-                    localStorage.removeItem('authToken');
-                    alert('Ваша сессия истекла. Пожалуйста, войдите снова');
-                    openLoginModal();
-                    return;
-                }
-
-                // Показываем результат
-                const resultDiv = document.getElementById('result');
-                const resultTitle = document.getElementById('resultTitle');
-                const resultMessage = document.getElementById('resultMessage');
-                const resultLinks = document.getElementById('resultLinks');
-
-                if (data.success) {
-                    resultDiv.className = 'result success active';
-                    resultTitle.textContent = '✅ Карточка успешно создана!';
-                    resultMessage.innerHTML = `
-                        <p><strong>ID карточки:</strong> ${data.cardId}</p>
-                        <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                            AI обработка запущена. Данные будут заполнены в таблице в течение минуты.
-                        </p>
-                    `;
-                    resultLinks.innerHTML = `
-                        <a href="${data.driveFolder.url}" target="_blank" class="result-link">
-                            📁 Открыть папку в Drive
-                        </a>
-                        <a href="https://docs.google.com/spreadsheets/d/${data.sheetId}" target="_blank" class="result-link">
-                            📊 Открыть таблицу
-                        </a>
-                    `;
-
-                    // Очистка формы
-                    document.getElementById('productForm').reset();
-                    document.querySelectorAll('.file-list').forEach(list => list.innerHTML = '');
-                } else {
-                    resultDiv.className = 'result error active';
-                    resultTitle.textContent = '❌ Ошибка при создании карточки';
-                    resultMessage.textContent = data.error || 'Произошла неизвестная ошибка';
-                    resultLinks.innerHTML = '';
-                }
-
-            } catch (error) {
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('submitBtn').disabled = false;
-
-                const resultDiv = document.getElementById('result');
-                resultDiv.className = 'result error active';
-                document.getElementById('resultTitle').textContent = '❌ Ошибка соединения';
-                document.getElementById('resultMessage').textContent = 'Не удалось отправить данные на сервер';
-                document.getElementById('resultLinks').innerHTML = '';
-            }
-        });
     </script>
 </body>
 </html>

@@ -274,6 +274,16 @@ class UserService {
       resource: { values: [rowValues] }
     });
 
+    // Create user folder in Google Drive
+    try {
+      const driveService = require('./driveService');
+      await driveService.createUserFolder(userId);
+      console.log(`📁 User folder created for ${userId}`);
+    } catch (error) {
+      console.error(`⚠️ Failed to create user folder for ${userId}:`, error.message);
+      // Don't fail user registration if folder creation fails
+    }
+
     // Return the generated User ID
     return userId;
   }

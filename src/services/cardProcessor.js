@@ -18,14 +18,14 @@ class CardProcessor {
 
   /**
    * Генерирует Card ID с User ID и счетчиком карточек
-   * Формат: CARD-U2025_11_25_WF-0001-C0001
+   * Формат: C-U2025_11_25_WF-0001-0001
    * @param {string} userId - User ID (например: U2025_11_25_WF-0001)
    * @param {number} cardNumber - Порядковый номер карточки пользователя
    * @returns {string} - Card ID
    */
   generateCardIdWithUser(userId, cardNumber) {
     const cardSeq = cardNumber.toString().padStart(4, '0');
-    return `CARD-${userId}-C${cardSeq}`;
+    return `C-${userId}-${cardSeq}`;
   }
 
   /**
@@ -37,10 +37,10 @@ class CardProcessor {
     const rows = await sheetsService.getRows();
     // Пропускаем заголовок (первая строка)
     const dataRows = rows.slice(1);
-    // Считаем карточки, где ID-Карточки содержит userId
+    // Считаем карточки, где ID-Карточки начинается с C-{userId}
     const userCards = dataRows.filter(row => {
       const cardId = row[1]; // Столбец B (ID-Карточки)
-      return cardId && cardId.includes(userId);
+      return cardId && cardId.startsWith(`C-${userId}-`);
     });
     return userCards.length;
   }
