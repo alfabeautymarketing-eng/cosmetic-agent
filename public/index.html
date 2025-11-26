@@ -85,6 +85,7 @@
         }
 
         input[type="text"],
+        input[type="email"],
         textarea {
             width: 100%;
             padding: 12px 16px;
@@ -96,6 +97,7 @@
         }
 
         input[type="text"]:focus,
+        input[type="email"]:focus,
         textarea:focus {
             outline: none;
             border-color: #667eea;
@@ -328,9 +330,316 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Навигационный бар */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-login:hover {
+            background: #f0f0ff;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-logout {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-logout:hover {
+            background: #e0e0e0;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .modal-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .auth-tab:hover {
+            border-color: #667eea;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .auth-method-icon {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group-modal {
+            margin-bottom: 20px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group-modal input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group-modal input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-submit-modal {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit-modal:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-submit-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .auth-divider::before {
+            left: 0;
+        }
+
+        .auth-divider::after {
+            right: 0;
+        }
+
+        .verification-code-input {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .verification-code-input input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .verification-code-input input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .auth-content {
+            display: block;
+        }
+
+        .auth-content.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <!-- Навигационный бар -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">Cosmetic Agent</a>
+        <div class="navbar-menu">
+            <div id="authButtons">
+                <button class="btn-nav btn-login" onclick="openLoginModal()">Войти</button>
+                <button class="btn-nav btn-register" onclick="openRegisterModal()">Регистрация</button>
+            </div>
+            <div id="userMenu" class="user-menu hidden">
+                <div class="user-avatar" id="userAvatar"></div>
+                <span class="user-name" id="userName"></span>
+                <button class="btn-nav btn-logout" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <div class="header">
             <h1>Создание карточки продукта</h1>
@@ -376,6 +685,19 @@
                 <!-- СЕКЦИЯ 2: Основная информация -->
                 <div class="form-section">
                     <div class="section-title">ℹ️ Основная информация</div>
+
+                    <div class="form-group">
+                        <label for="userEmail">Email <span class="required">*</span></label>
+                        <input type="email" id="userEmail" name="userEmail" required
+                               placeholder="Например: ivan@example.com">
+                        <div class="hint-text">Используется для идентификации пользователя и доступа к карточкам</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userName">Ваше имя <span class="required">*</span></label>
+                        <input type="text" id="userName" name="userName" required
+                               placeholder="Например: Иван Иванов">
+                    </div>
 
                     <div class="form-group">
                         <label for="productName">Наименование продукта <span class="required">*</span></label>
@@ -517,6 +839,193 @@ Hyaluronic Acid - 5%
             </form>
         </div>
     </div>
+
+    <!-- Модальное окно регистрации -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+
+            <div class="modal-header">
+                <h2>Регистрация</h2>
+                <p>Выберите способ регистрации</p>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('register', 'email')">
+                    <span class="auth-method-icon">📧</span>
+                    Email
+                </div>
+                <div class="auth-tab" onclick="switchAuthTab('register', 'google')">
+                    <span class="auth-method-icon">🔵</span>
+                    Google
+                </div>
+                <div class="auth-tab" onclick="switchAuthTab('register', 'telegram')">
+                    <span class="auth-method-icon">✈️</span>
+                    Telegram
+                </div>
+            </div>
+
+            <!-- Email регистрация -->
+            <div id="register-email" class="auth-content">
+                <form id="registerEmailForm" onsubmit="registerWithEmail(event)">
+                    <div class="form-group-modal">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required placeholder="example@mail.com">
+                    </div>
+
+                    <div class="form-group-modal">
+                        <label for="registerName">Ваше имя</label>
+                        <input type="text" id="registerName" required placeholder="Иван Иванов">
+                    </div>
+
+                    <button type="submit" class="btn-submit-modal">Получить код</button>
+                </form>
+
+                <form id="registerVerificationForm" class="hidden" onsubmit="verifyRegistrationCode(event)">
+                    <p style="text-align: center; margin-bottom: 20px;">
+                        Введите 6-значный код, отправленный на<br>
+                        <strong id="registerVerificationEmail"></strong>
+                    </p>
+
+                    <div class="verification-code-input">
+                        <input type="text" id="code1" maxlength="1" pattern="\d" required>
+                        <input type="text" id="code2" maxlength="1" pattern="\d" required>
+                        <input type="text" id="code3" maxlength="1" pattern="\d" required>
+                        <input type="text" id="code4" maxlength="1" pattern="\d" required>
+                        <input type="text" id="code5" maxlength="1" pattern="\d" required>
+                        <input type="text" id="code6" maxlength="1" pattern="\d" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit-modal">Подтвердить</button>
+                    <button type="button" class="btn-submit-modal" style="background: #f0f0f0; color: #666; margin-top: 10px;" onclick="closeModal('registerModal')">Отмена</button>
+                </form>
+            </div>
+
+            <!-- Google регистрация -->
+            <div id="register-google" class="auth-content hidden">
+                <p style="text-align: center; margin: 30px 0;">Скоро будет доступно</p>
+                <button class="btn-submit-modal" style="background: #4285f4;">
+                    <span style="font-size: 20px; margin-right: 10px;">🔵</span>
+                    Продолжить с Google
+                </button>
+            </div>
+
+            <!-- Telegram регистрация -->
+            <div id="register-telegram" class="auth-content hidden">
+                <p style="text-align: center; margin: 30px 0;">Скоро будет доступно</p>
+                <button class="btn-submit-modal" style="background: #0088cc;">
+                    <span style="font-size: 20px; margin-right: 10px;">✈️</span>
+                    Продолжить с Telegram
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно входа -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="position: relative;">
+            <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+
+            <div class="modal-header">
+                <h2>Вход</h2>
+                <p>Выберите способ входа</p>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login', 'email')">
+                    <span class="auth-method-icon">📧</span>
+                    Email
+                </div>
+                <div class="auth-tab" onclick="switchAuthTab('login', 'google')">
+                    <span class="auth-method-icon">🔵</span>
+                    Google
+                </div>
+                <div class="auth-tab" onclick="switchAuthTab('login', 'telegram')">
+                    <span class="auth-method-icon">✈️</span>
+                    Telegram
+                </div>
+            </div>
+
+            <!-- Email вход -->
+            <div id="login-email" class="auth-content">
+                <form id="loginEmailForm" onsubmit="loginWithEmail(event)">
+                    <div class="form-group-modal">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required placeholder="example@mail.com">
+                    </div>
+
+                    <button type="submit" class="btn-submit-modal">Получить код</button>
+                </form>
+
+                <form id="loginVerificationForm" class="hidden" onsubmit="verifyLoginCode(event)">
+                    <p style="text-align: center; margin-bottom: 20px;">
+                        Введите 6-значный код, отправленный на<br>
+                        <strong id="loginVerificationEmail"></strong>
+                    </p>
+
+                    <div class="verification-code-input">
+                        <input type="text" id="loginCode1" maxlength="1" pattern="\d" required>
+                        <input type="text" id="loginCode2" maxlength="1" pattern="\d" required>
+                        <input type="text" id="loginCode3" maxlength="1" pattern="\d" required>
+                        <input type="text" id="loginCode4" maxlength="1" pattern="\d" required>
+                        <input type="text" id="loginCode5" maxlength="1" pattern="\d" required>
+                        <input type="text" id="loginCode6" maxlength="1" pattern="\d" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit-modal">Войти</button>
+                    <button type="button" class="btn-submit-modal" style="background: #f0f0f0; color: #666; margin-top: 10px;" onclick="closeModal('loginModal')">Отмена</button>
+                </form>
+
+                <div class="auth-divider">или</div>
+
+                <p style="text-align: center; font-size: 14px; color: #666;">
+                    Нет аккаунта? <a href="#" onclick="closeModal('loginModal'); openRegisterModal(); return false;" style="color: #667eea; font-weight: 600;">Зарегистрироваться</a>
+                </p>
+            </div>
+
+            <!-- Google вход -->
+            <div id="login-google" class="auth-content hidden">
+                <p style="text-align: center; margin: 30px 0;">Скоро будет доступно</p>
+                <button class="btn-submit-modal" style="background: #4285f4;">
+                    <span style="font-size: 20px; margin-right: 10px;">🔵</span>
+                    Войти через Google
+                </button>
+            </div>
+
+            <!-- Telegram вход -->
+            <div id="login-telegram" class="auth-content hidden">
+                <p style="text-align: center; margin: 30px 0;">Скоро будет доступно</p>
+                <button class="btn-submit-modal" style="background: #0088cc;">
+                    <span style="font-size: 20px; margin-right: 10px;">✈️</span>
+                    Войти через Telegram
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем auth.js -->
+    <script src="/auth.js"></script>
+
+    <script>
+        // Функция переключения вкладок авторизации
+        function switchAuthTab(modal, method) {
+            // Скрываем все контенты
+            document.querySelectorAll(`#${modal}-email, #${modal}-google, #${modal}-telegram`).forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Убираем активный класс со всех вкладок
+            event.target.closest('.auth-tabs').querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Показываем выбранный контент
+            document.getElementById(`${modal}-${method}`).classList.remove('hidden');
+
+            // Активируем выбранную вкладку
+            event.target.closest('.auth-tab').classList.add('active');
+        }
+    </script>
 
     <script>
         // Переключение вкладок загрузки
@@ -723,6 +1232,10 @@ Hyaluronic Acid - 5%
 
             const formData = new FormData();
 
+            // Данные пользователя
+            formData.append('userEmail', document.getElementById('userEmail').value);
+            formData.append('userName', document.getElementById('userName').value);
+
             // Основная информация
             formData.append('productName', document.getElementById('productName').value);
             formData.append('purpose', document.getElementById('purpose').value);
@@ -769,6 +1282,14 @@ Hyaluronic Acid - 5%
             formData.append('category', document.getElementById('category').value || '');
             formData.append('categoryArgument', document.getElementById('categoryArgument').value || '');
 
+            // Проверяем авторизацию
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Для создания карточки необходимо авторизоваться');
+                openLoginModal();
+                return;
+            }
+
             // Показываем загрузку
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loading').classList.add('active');
@@ -777,6 +1298,9 @@ Hyaluronic Acid - 5%
             try {
                 const response = await fetch('/api/create-card', {
                     method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: formData
                 });
 
@@ -785,6 +1309,14 @@ Hyaluronic Acid - 5%
                 // Скрываем загрузку
                 document.getElementById('loading').classList.remove('active');
                 document.getElementById('submitBtn').disabled = false;
+
+                // Проверяем авторизацию
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    alert('Ваша сессия истекла. Пожалуйста, войдите снова');
+                    openLoginModal();
+                    return;
+                }
 
                 // Показываем результат
                 const resultDiv = document.getElementById('result');

@@ -235,25 +235,18 @@ class UserService {
     // Default values
     const regDate = userData.regDate || new Date();
     const formattedDate = regDate.toISOString().split('T')[0].replace(/-/g, '_'); // YYYY_MM_DD
-    
-    // Formula for UserID: =IF(B2="";"";"U" & TEXT(B2;"yyyy_mm_dd") & "_" & D2 & "-" & TEXT(ROW()-1;"0000"))
-    // Note: We use INDIRECT("RC[-1]",0) or similar if we want relative, but standard notation works in append if we don't hardcode row number.
-    // Actually, when appending, we don't know the row number easily in the formula string unless we use ROW().
-    // Formula: ="U" & TEXT(INDIRECT("RC[1]",0), "yyyy_mm_dd") ... 
-    // Easier: =IF(B:B="";"";"U"&TEXT(B:B;"yyyy_mm_dd")&"_"&D:D&"-"&TEXT(ROW()-1;"0000")) 
-    // But putting B:B in a cell refers to the whole column (spill). We want relative B2.
-    // When we append a row, if we use "B2" in the formula, Google Sheets might not auto-adjust it if we just paste text.
-    // However, if we use R1C1 notation or just `INDIRECT`, it's safer.
-    // Let's try the formula the user suggested, but using `INDIRECT` to reference "Current Row, Column B".
-    // Column B is index 2. Column A is index 1.
-    // Formula in Col A: ="U" & TEXT(INDIRECT("R[0]C[1]", FALSE), "yyyy_mm_dd") & "_" & INDIRECT("R[0]C[3]", FALSE) & "-" & TEXT(ROW()-1, "0000")
-    // R[0]C[1] means same row, 1 column to the right (B).
-    // R[0]C[3] means same row, 3 columns to the right (D).
-    
-    const idFormula = `=IF(INDIRECT("R[0]C[1]", FALSE)="";"";"U" & TEXT(INDIRECT("R[0]C[1]", FALSE);"yyyy_mm_dd") & "_" & INDIRECT("R[0]C[3]", FALSE) & "-" & TEXT(ROW()-1;"0000"))`;
+
+    // Get current user count to generate sequential ID
+    const rows = await this.getUsers();
+    const userCount = rows.length; // includes header, so actual users = length - 1
+    const userSeq = userCount.toString().padStart(4, '0'); // 0001, 0002, etc.
+
+    // Generate User ID: U2025_11_26_WF-0001
+    const channelCode = userData.channelCode || 'WF';
+    const userId = `U${formattedDate}_${channelCode}-${userSeq}`;
 
     const rowValues = [
-      idFormula, // A: UserID
+      userId, // A: UserID (generated on server)
       userData.regDate || new Date().toISOString(), // B: Date
       userData.channelName || '', // C: Channel Name
       userData.channelCode || '', // D: Channel Code
@@ -281,9 +274,8 @@ class UserService {
       resource: { values: [rowValues] }
     });
 
-    // Return the generated ID (calculated manually for return, though sheet has formula)
-    // This is an approximation since we rely on the sheet formula for the actual ID
-    return idFormula; 
+    // Return the generated User ID
+    return userId;
   }
 
   /**
@@ -310,7 +302,7 @@ class UserService {
 
     // Chat ID is in column H (index 7)
     const userRow = rows.find(row => row[7] == chatId);
-    
+
     if (userRow) {
       return {
         userId: userRow[0],
@@ -328,29 +320,64 @@ class UserService {
   }
 
   /**
+   * Find a user by Email
+   * @param {string} email
+   * @returns {Promise<Object|null>}
+   */
+  async findUserByEmail(email) {
+    const rows = await this.getUsers();
+    if (rows.length < 2) return null; // Only headers
+
+    // Email is in column F (index 5)
+    const userRow = rows.slice(1).find(row => row[5] === email);
+
+    if (userRow) {
+      return {
+        userId: userRow[0],
+        regDate: userRow[1],
+        channel: userRow[2],
+        channelCode: userRow[3],
+        name: userRow[4],
+        email: userRow[5],
+        tgUser: userRow[6],
+        chatId: userRow[7]
+      };
+    }
+    return null;
+  }
+
+  /**
    * Get existing user or create a new one
    * @param {Object} userData
    * @returns {Promise<Object>} User object with userId
    */
   async getOrCreateUser(userData) {
-    if (userData.telegramChatId) {
-      const existingUser = await this.findUserByChatId(userData.telegramChatId);
-      if (existingUser) {
-        return existingUser;
-      }
+    // Check if user exists by email or telegram chat ID
+    let existingUser = null;
+
+    if (userData.email) {
+      existingUser = await this.findUserByEmail(userData.email);
+    } else if (userData.telegramChatId) {
+      existingUser = await this.findUserByChatId(userData.telegramChatId);
     }
 
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Create new user
     await this.addUser(userData);
-    
-    // Fetch the user again to get the generated ID (since formula generates it)
-    // We might need a small delay or just fetch by Chat ID again
-    // For now, let's fetch by Chat ID
-    if (userData.telegramChatId) {
-      // Wait a moment for sheet to update? Usually API is fast enough but formula calculation might take a tick?
-      // Actually API read returns calculated values.
+
+    // Wait a moment for sheet to calculate formulas
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Fetch the newly created user
+    if (userData.email) {
+      return await this.findUserByEmail(userData.email);
+    } else if (userData.telegramChatId) {
       return await this.findUserByChatId(userData.telegramChatId);
     }
-    
+
     return null;
   }
 }

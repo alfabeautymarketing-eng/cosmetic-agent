@@ -1,9 +1,10 @@
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const express = require('express');
 const path = require('path');
 const webhookRouter = require('./routes/webhook');
 const healthRouter = require('./routes/health');
 const formRouter = require('./routes/form');
+const { router: authRouter } = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/health', healthRouter);
 app.use('/webhook', webhookRouter);
+app.use('/api/auth', authRouter);
 app.use('/api', formRouter);
 
 // Главная страница - редирект на форму

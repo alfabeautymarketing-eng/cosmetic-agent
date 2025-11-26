@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const cardProcessor = require('../services/cardProcessor');
+const { authMiddleware } = require('./auth');
 
 // Настройка multer для загрузки файлов в память
 const upload = multer({
@@ -31,8 +32,8 @@ const upload = multer({
   }
 });
 
-// POST /api/create-card - создание карточки через форму
-router.post('/create-card', upload.fields([
+// POST /api/create-card - создание карточки через форму (требует авторизации)
+router.post('/create-card', authMiddleware, upload.fields([
   { name: 'labelFile', maxCount: 1 },
   { name: 'inciDoc', maxCount: 1 },
   { name: 'photos', maxCount: 10 }
@@ -43,7 +44,14 @@ router.post('/create-card', upload.fields([
     console.log('Файлы:', req.files);
 
     // Валидация обязательных полей
-    const { productName, purpose, application } = req.body;
+    const { userEmail, userName, productName, purpose, application } = req.body;
+
+    if (!userEmail || !userName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Не заполнены обязательные поля: Email и Имя'
+      });
+    }
 
     if (!productName || !purpose || !application) {
       return res.status(400).json({
@@ -114,7 +122,8 @@ router.post('/create-card', upload.fields([
 
     // Подготовка данных для обработки
     const cardData = {
-      chatId: 'web-form', // Специальный ID для веб-формы
+      userEmail, // Email пользователя
+      userName, // Имя пользователя
       productName,
       purpose,
       application,

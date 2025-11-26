@@ -1,5 +1,6 @@
 const driveService = require('./driveService');
 const sheetsService = require('./sheetsService');
+const userService = require('./userService');
 const fileDownloader = require('../utils/fileDownloader');
 
 /**
@@ -7,12 +8,41 @@ const fileDownloader = require('../utils/fileDownloader');
  */
 class CardProcessor {
   /**
-   * Генерирует уникальный ID карточки
+   * Генерирует уникальный ID карточки (старый формат, для обратной совместимости)
    */
   generateCardId() {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 1000);
     return `CARD-${timestamp}-${random}`;
+  }
+
+  /**
+   * Генерирует Card ID с User ID и счетчиком карточек
+   * Формат: CARD-U2025_11_25_WF-0001-C0001
+   * @param {string} userId - User ID (например: U2025_11_25_WF-0001)
+   * @param {number} cardNumber - Порядковый номер карточки пользователя
+   * @returns {string} - Card ID
+   */
+  generateCardIdWithUser(userId, cardNumber) {
+    const cardSeq = cardNumber.toString().padStart(4, '0');
+    return `CARD-${userId}-C${cardSeq}`;
+  }
+
+  /**
+   * Получает количество карточек пользователя из Google Sheets
+   * @param {string} userId - User ID
+   * @returns {Promise<number>} - Количество карточек
+   */
+  async getUserCardCount(userId) {
+    const rows = await sheetsService.getRows();
+    // Пропускаем заголовок (первая строка)
+    const dataRows = rows.slice(1);
+    // Считаем карточки, где ID-Карточки содержит userId
+    const userCards = dataRows.filter(row => {
+      const cardId = row[1]; // Столбец B (ID-Карточки)
+      return cardId && cardId.includes(userId);
+    });
+    return userCards.length;
   }
 
   /**
@@ -117,11 +147,37 @@ class CardProcessor {
    * @returns {Object} - Результат обработки
    */
   async processCardWithFiles(data) {
-    const cardId = this.generateCardId();
-    console.log(`🔄 Начинаем обработку карточки ${cardId} из веб-формы`);
+    console.log(`🔄 Начинаем обработку карточки из веб-формы`);
 
     try {
-      // 1. Создаем папку в Google Drive
+      // 1. Получаем или создаем пользователя
+      console.log(`👤 Получаем/создаем пользователя: ${data.userEmail}`);
+      const userData = {
+        email: data.userEmail,
+        displayName: data.userName,
+        channelCode: 'WF',
+        channelName: 'Web Form',
+        language: 'ru',
+        role: 'user',
+        status: 'active',
+        consent: true
+      };
+
+      const user = await userService.getOrCreateUser(userData);
+
+      if (!user || !user.userId) {
+        throw new Error('Не удалось создать пользователя');
+      }
+
+      console.log(`✅ Пользователь: ${user.userId}`);
+
+      // 2. Генерируем Card ID с User ID
+      const cardCount = await this.getUserCardCount(user.userId);
+      const cardNumber = cardCount + 1; // Следующая карточка
+      const cardId = this.generateCardIdWithUser(user.userId, cardNumber);
+      console.log(`🆔 Card ID: ${cardId} (карточка #${cardNumber})`);
+
+      // 3. Создаем папку в Google Drive
       const folderName = `[${cardId}] ${data.productName}`;
       const folderId = await driveService.createFolder(folderName);
       console.log(`📁 Папка создана: ${folderName} (${folderId})`);
@@ -192,7 +248,7 @@ class CardProcessor {
       // 5. Добавляем запись в Google Sheets
       const rowData = {
         cardId,
-        chatId: data.chatId,
+        chatId: user.userId, // Теперь храним User ID вместо Chat ID
         productName: data.productName,
         purpose: data.purpose || '',
         application: data.application || '',
