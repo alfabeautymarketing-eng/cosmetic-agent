@@ -42,28 +42,69 @@
 | [`docs/NEXT_SESSION.md`](docs/NEXT_SESSION.md) | Краткая инструкция | Следующая сессия (5 мин) |
 | [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) | Полная документация | Детальное изучение (30 мин) |
 | [`docs/README_DOCS.md`](docs/README_DOCS.md) | Навигация | Обзор всей документации |
+| **[`GEMINI_SETUP.md`](GEMINI_SETUP.md)** | **Подключение Gemini AI** | **Подробная инструкция (10 мин)** |
+| **[`QUICK_GEMINI_SETUP.md`](QUICK_GEMINI_SETUP.md)** | **Быстрая настройка AI** | **Для опытных (5 мин)** |
 
 ---
 
 ## 🔧 Настройка
 
+### 1️⃣ Установить зависимости
 ```bash
-# 1. Установить зависимости
 npm install
+```
 
-# 2. Получить Gemini API ключ
-# https://makersuite.google.com/app/apikey
+### 2️⃣ Настроить Gemini AI (ОБЯЗАТЕЛЬНО!)
 
-# 3. Настроить .env
-GEMINI_API_KEY=your_key  # ← ОБЯЗАТЕЛЬНО!
+> 🤖 **AI - главная фича проекта!** Без Gemini API приложение не будет работать корректно.
+
+**📖 Подробная инструкция:** [`GEMINI_SETUP.md`](GEMINI_SETUP.md)
+**⚡ Быстрая настройка:** [`QUICK_GEMINI_SETUP.md`](QUICK_GEMINI_SETUP.md)
+
+**Кратко:**
+1. Получить API ключ: https://aistudio.google.com/app/apikey
+2. Добавить в `.env`: `GEMINI_API_KEY=AIzaSyDXXXXXXXXXXXX`
+3. Проверить: `node test-gemini.js`
+
+### 3️⃣ Настроить .env файл
+
+Создайте файл `.env` в корне проекта:
+
+```bash
+# ===================================
+# GEMINI AI (ОБЯЗАТЕЛЬНО!)
+# ===================================
+GEMINI_API_KEY=AIzaSyDXXXXXXXXXXXX  # Получить: https://aistudio.google.com/app/apikey
+
+# ===================================
+# GOOGLE SERVICES
+# ===================================
 GOOGLE_DRIVE_FOLDER_ID=your_folder_id
-GOOGLE_DRIVE_SHARED_DRIVE_ID=your_shared_drive_id  # корневая папка должна быть в Shared Drive, иначе будет ошибка про quota
 GOOGLE_SHEET_ID=your_sheet_id
-JWT_SECRET=your_secret
+GOOGLE_SERVICE_ACCOUNT_KEY_PATH=./credentials.json
 
-# 4. Запустить
+# ВАЖНО: Если используете Service Account:
+# Папка должна быть в Shared Drive или дайте доступ Service Account к папке
+# Иначе будет ошибка "Service Accounts do not have storage quota"
+
+# ===================================
+# SECURITY
+# ===================================
+JWT_SECRET=your_jwt_secret_change_in_production
+PORT=3000
+NODE_ENV=development
+```
+
+### 4️⃣ Запустить сервер
+
+```bash
 node src/server.js
 ```
+
+Откройте: **http://localhost:3000**
+
+> ✅ Если всё настроено правильно, вы **НЕ** увидите предупреждение:
+> `⚠️ GEMINI_API_KEY is not set`
 
 ---
 
