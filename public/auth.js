@@ -27,6 +27,7 @@ async function checkAuth() {
 
     if (!token) {
         showAuthButtons();
+        blockFormUntilAuth(); // Блокируем форму до авторизации
         return;
     }
 
@@ -45,14 +46,17 @@ async function checkAuth() {
             authToken = token;
             currentUser = data.user;
             showUserMenu();
+            unblockForm(); // Разблокируем форму после успешной авторизации
         } else {
             localStorage.removeItem('authToken');
             showAuthButtons();
+            blockFormUntilAuth(); // Блокируем форму
         }
     } catch (error) {
         console.error('Ошибка проверки токена:', error);
         localStorage.removeItem('authToken');
         showAuthButtons();
+        blockFormUntilAuth(); // Блокируем форму
     }
 }
 
@@ -119,6 +123,7 @@ async function autoLogin(email) {
 
         console.log('✅ Автоматический вход выполнен!', currentUser);
         showUserMenu();
+        unblockForm(); // Разблокируем форму после автологина
 
     } catch (error) {
         console.error('❌ Ошибка автологина:', error);
@@ -445,3 +450,75 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCodeInputs('registerVerificationForm', 'code');
     setupCodeInputs('loginVerificationForm', 'loginCode');
 });
+
+/**
+ * Блокирует форму создания карточки до авторизации
+ */
+function blockFormUntilAuth() {
+    const productNameInput = document.getElementById('productName');
+    const createCardBtn = document.getElementById('createCardBtn');
+    const formContainer = document.querySelector('.form-container');
+
+    // Блокируем поле ввода
+    if (productNameInput) {
+        productNameInput.disabled = true;
+        productNameInput.placeholder = '🔒 Войдите, чтобы создать карточку';
+    }
+
+    // Блокируем кнопку
+    if (createCardBtn) {
+        createCardBtn.disabled = true;
+        createCardBtn.style.opacity = '0.5';
+        createCardBtn.style.cursor = 'not-allowed';
+    }
+
+    // Добавляем уведомление
+    if (formContainer && !document.getElementById('authWarning')) {
+        const warning = document.createElement('div');
+        warning.id = 'authWarning';
+        warning.style.cssText = `
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            color: #856404;
+        `;
+        warning.innerHTML = `
+            🔒 Для создания карточки необходимо авторизоваться<br>
+            <button onclick="openLoginModal()" style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Войти
+            </button>
+        `;
+        formContainer.insertBefore(warning, formContainer.firstChild);
+    }
+}
+
+/**
+ * Разблокирует форму после успешной авторизации
+ */
+function unblockForm() {
+    const productNameInput = document.getElementById('productName');
+    const createCardBtn = document.getElementById('createCardBtn');
+    const authWarning = document.getElementById('authWarning');
+
+    // Разблокируем поле ввода
+    if (productNameInput) {
+        productNameInput.disabled = false;
+        productNameInput.placeholder = 'Например: Крем увлажняющий для лица';
+    }
+
+    // Разблокируем кнопку
+    if (createCardBtn) {
+        createCardBtn.disabled = false;
+        createCardBtn.style.opacity = '1';
+        createCardBtn.style.cursor = 'pointer';
+    }
+
+    // Удаляем уведомление
+    if (authWarning) {
+        authWarning.remove();
+    }
+}
