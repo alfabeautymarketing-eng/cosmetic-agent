@@ -92,26 +92,42 @@ class AiService {
 
     try {
       const prompt = `
-        Analyze this cosmetic product label and extract information in JSON format:
+        You are a professional cosmetic product data extractor. Your task is to read the cosmetic product label and extract information EXACTLY as written, without paraphrasing or shortening.
 
         Product Name: ${data.productName}
-        ${data.labelText ? `Label Text: ${data.labelText}` : 'Please read text from the image'}
+        ${data.labelText ? `Label Text (extracted from PDF):\n${data.labelText}` : 'Please carefully read ALL text from the label image'}
+
+        CRITICAL INSTRUCTIONS:
+        1. Extract text VERBATIM (word-for-word) from the label
+        2. DO NOT paraphrase or rewrite the text
+        3. DO NOT shorten or summarize - include ALL relevant information
+        4. DO NOT add information not present on the label
+        5. If text is in Russian - keep it in Russian
+        6. If text is in English - keep it in English
 
         Output JSON structure:
         {
-          "labelInfo": "Краткое описание информации с этикетки: производитель, объем, срок годности, сертификация, основные ингредиенты, предупреждения и т.д. (на русском, 2-3 предложения)",
-          "suggestedPurpose": "Предполагаемое назначение продукта на основе информации с этикетки (краткое, 1-2 предложения на русском)",
-          "suggestedApplication": "Предполагаемый способ применения продукта на основе инструкций с этикетки (краткое, 1-2 предложения на русском)"
+          "labelInfo": "Manufacturer, volume, expiry date, certifications, warnings (2-3 sentences, Russian)",
+          "suggestedPurpose": "EXACT text from label about product purpose/benefits - word-for-word copy from 'Назначение' or 'Для чего' section. Include ALL details mentioned. If not found, analyze ingredients and product type to suggest purpose.",
+          "suggestedApplication": "EXACT text from label about usage instructions - word-for-word copy from 'Способ применения' or 'Application' section. Include ALL steps, frequency, and precautions mentioned. If not found, suggest based on product type."
         }
 
-        Important:
-        - Extract manufacturer, volume, expiry date if visible
-        - Identify key active ingredients mentioned on front label
-        - Note any certifications (organic, vegan, cruelty-free, etc.)
-        - Read usage instructions if present
-        - Base suggestions ONLY on information from the label
-        - Be concise but informative
-        - Write in Russian
+        EXAMPLES:
+
+        ❌ BAD (paraphrased):
+        "suggestedPurpose": "Увлажняет кожу"
+
+        ✅ GOOD (verbatim from label):
+        "suggestedPurpose": "Предназначен для интенсивного увлажнения и питания сухой и обезвоженной кожи лица. Восстанавливает защитный барьер кожи, устраняет шелушение, придает коже мягкость и эластичность. Подходит для ежедневного использования."
+
+        ❌ BAD (shortened):
+        "suggestedApplication": "Наносить утром и вечером"
+
+        ✅ GOOD (complete instructions):
+        "suggestedApplication": "Наносить на предварительно очищенную кожу лица утром и вечером легкими массажными движениями до полного впитывания. Избегать области вокруг глаз. Рекомендуется использовать в сочетании с солнцезащитным кремом в дневное время."
+
+        Remember: Your goal is to PRESERVE the original text, not to improve or shorten it.
+        Ваша цель - СОХРАНИТЬ оригинальный текст, а не улучшить или сократить его.
       `;
 
       let result;

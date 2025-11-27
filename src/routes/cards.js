@@ -169,11 +169,26 @@ router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async 
     // Update Sheets with label link and AI-extracted info
     const cardRow = await sheetsService.getRowByCardId(cardId);
     if (cardRow) {
+      const labelInfo = aiResult.labelInfo || '';
+      const cleanedPurpose = (aiResult.suggestedPurpose || '').trim();
+      const cleanedApplication = (aiResult.suggestedApplication || '').trim();
+
       await sheetsService.updateLabelInfo(
         cardRow.rowNumber,
         labelLink,
-        aiResult.labelInfo || ''
+        labelInfo
       );
+
+      if (cleanedPurpose || cleanedApplication) {
+        const currentPurpose = cardRow.data?.[6] || '';
+        const currentApplication = cardRow.data?.[7] || '';
+
+        await sheetsService.updatePurposeAndApplication(
+          cardRow.rowNumber,
+          cleanedPurpose || currentPurpose,
+          cleanedApplication || currentApplication
+        );
+      }
     }
 
     console.log(`✅ Label processing complete for ${cardId}`);
@@ -183,8 +198,8 @@ router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async 
       labelLink,
       labelFileName,
       aiSuggestions: {
-        purpose: aiResult.suggestedPurpose || '',
-        application: aiResult.suggestedApplication || ''
+        purpose: (aiResult.suggestedPurpose || '').trim(),
+        application: (aiResult.suggestedApplication || '').trim()
       },
       labelInfo: aiResult.labelInfo || '',
       message: 'Этикетка загружена и обработана AI'
@@ -192,6 +207,56 @@ router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async 
 
   } catch (error) {
     console.error('❌ Error uploading label:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Update purpose/application values
+ * PATCH /api/cards/:cardId/info
+ *
+ * Persists Назначение и Применение in Sheets (columns G and H)
+ */
+router.patch('/:cardId/info', authMiddleware, async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const cleanPurpose = (req.body.purpose || '').trim();
+    const cleanApplication = (req.body.application || '').trim();
+
+    console.log(`✏️ Updating purpose/application for card: ${cardId}`);
+
+    if (!cleanPurpose || !cleanApplication) {
+      return res.status(400).json({
+        success: false,
+        error: 'Заполните поля "Назначение" и "Применение"'
+      });
+    }
+
+    const cardRow = await sheetsService.getRowByCardId(cardId);
+    if (!cardRow) {
+      return res.status(404).json({
+        success: false,
+        error: 'Карточка не найдена'
+      });
+    }
+
+    await sheetsService.updatePurposeAndApplication(
+      cardRow.rowNumber,
+      cleanPurpose,
+      cleanApplication
+    );
+
+    console.log(`✅ Purpose/Application saved for ${cardId}`);
+
+    res.json({
+      success: true,
+      message: 'Назначение и Применение обновлены'
+    });
+  } catch (error) {
+    console.error('❌ Error updating purpose/application:', error);
     res.status(500).json({
       success: false,
       error: error.message

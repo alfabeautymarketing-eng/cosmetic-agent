@@ -8,7 +8,10 @@ let currentCard = {
     photosFolderId: null,
     productName: null,
     purpose: null,
-    application: null
+    application: null,
+    labelPreviewUrl: null,
+    labelMimeType: '',
+    labelFileName: ''
 };
 
 // Текущий метод загрузки для каждого блока
@@ -133,6 +136,9 @@ async function createCard() {
         currentCard.userFolderId = data.userFolderId;
         currentCard.photosFolderId = data.photosFolderId;
         currentCard.productName = productName;
+        revokeLabelPreviewUrl();
+        currentCard.labelMimeType = '';
+        currentCard.labelFileName = '';
 
         // Показываем успех с кнопкой редактирования
         alert1.innerHTML = `
@@ -257,6 +263,111 @@ async function updateProductName() {
 }
 
 // ====================
+// Label helpers
+// ====================
+function guessMimeType(fileName = '', providedType = '') {
+    if (providedType) return providedType;
+    const lower = fileName.toLowerCase();
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    return '';
+}
+
+function revokeLabelPreviewUrl() {
+    if (currentCard.labelPreviewUrl && currentCard.labelPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(currentCard.labelPreviewUrl);
+    }
+    currentCard.labelPreviewUrl = null;
+}
+
+function buildFilePreviewHtml(previewUrl, mimeType, fileName) {
+    if (!previewUrl) {
+        return '<p style="text-align:center; color: #666;">Превью недоступно</p>';
+    }
+
+    if (mimeType && mimeType.startsWith('image/')) {
+        return `
+            <div class="file-embed">
+                <img src="${previewUrl}" alt="${fileName || 'Этикетка'}">
+            </div>
+        `;
+    }
+
+    if (mimeType === 'application/pdf') {
+        return `
+            <div class="file-embed">
+                <iframe src="${previewUrl}" title="${fileName || 'Этикетка'}" frameborder="0"></iframe>
+            </div>
+        `;
+    }
+
+    return `
+        <p style="text-align:center; color: #666;">
+            Превью недоступно для этого формата.
+            <a href="${previewUrl}" target="_blank" rel="noreferrer">Открыть файл</a>
+        </p>
+    `;
+}
+
+function renderLabelPreview(previewUrl, mimeType, fileName) {
+    const preview = document.getElementById('labelPreview');
+    if (!preview) return;
+
+    preview.classList.remove('hidden');
+    preview.classList.add('has-file');
+
+    const previewMarkup = buildFilePreviewHtml(previewUrl, mimeType, fileName);
+
+    preview.innerHTML = `
+        <div class="file-item">
+            <span class="file-item-name">📋 ${fileName || 'Файл этикетки'}</span>
+            <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
+        </div>
+        ${previewMarkup}
+    `;
+}
+
+function setLabelPreviewFromFile(file) {
+    if (!file) return;
+    revokeLabelPreviewUrl();
+    currentCard.labelPreviewUrl = URL.createObjectURL(file);
+    currentCard.labelMimeType = file.type || guessMimeType(file.name);
+    currentCard.labelFileName = file.name;
+    renderLabelPreview(currentCard.labelPreviewUrl, currentCard.labelMimeType, file.name);
+}
+
+function getDrivePreviewUrl(labelLink) {
+    if (!labelLink) return '';
+    if (labelLink.includes('/view')) {
+        return labelLink.replace('/view', '/preview');
+    }
+    return labelLink;
+}
+
+function getLabelPreviewSource(data) {
+    if (currentCard.labelPreviewUrl) {
+        return {
+            url: currentCard.labelPreviewUrl,
+            mimeType: currentCard.labelMimeType || guessMimeType(currentCard.labelFileName),
+            fileName: currentCard.labelFileName || data?.labelFileName
+        };
+    }
+
+    if (data?.labelLink) {
+        return {
+            url: getDrivePreviewUrl(data.labelLink),
+            mimeType: guessMimeType(data.labelFileName || ''),
+            fileName: data.labelFileName || ''
+        };
+    }
+
+    return null;
+}
+
+// ====================
 // BLOCK 2: Product Info (Purpose + Application)
 // ====================
 
@@ -280,73 +391,14 @@ async function handleLabelFile() {
 
     if (!file) return;
 
-    const preview = document.getElementById('labelPreview');
-    const loading = document.getElementById('loading2');
-    const results = document.getElementById('labelResults');
-
-    preview.classList.remove('hidden');
-    preview.classList.add('has-file');
-    preview.innerHTML = `
-        <div class="file-item">
-            <span class="file-item-name">📋 ${file.name}</span>
-        </div>
-    `;
-
-    loading.classList.add('active');
-    results.classList.add('hidden');
-
-    try {
-        const formData = new FormData();
-        formData.append('labelFile', file);
-        formData.append('cardFolderId', currentCard.cardFolderId);
-        formData.append('productName', currentCard.productName);
-
-        const response = await fetch(`/api/cards/${currentCard.cardId}/label`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        loading.classList.remove('active');
-
-        if (!data.success) {
-            alert(`Ошибка: ${data.error}`);
-            return;
-        }
-
-        // Автозаполняем поля Назначение и Применение из AI
-        if (data.aiSuggestions.purpose) {
-            document.getElementById('purpose').value = data.aiSuggestions.purpose;
-        }
-        if (data.aiSuggestions.application) {
-            document.getElementById('application').value = data.aiSuggestions.application;
-        }
-
-        // Показываем результаты AI
-        const resultContent = document.getElementById('labelResultsContent');
-        resultContent.innerHTML = `
-            <p><strong>📎 Файл:</strong> ${data.labelFileName}</p>
-            <p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>
-            ${data.labelInfo ? `<p><strong>ℹ️ Информация:</strong> ${data.labelInfo}</p>` : ''}
-            <p style="color: #28a745; margin-top: 10px;">✅ Поля "Назначение" и "Применение" автоматически заполнены</p>
-        `;
-        results.classList.remove('hidden');
-
-        // Проверяем заполненность полей
-        checkInfoFields();
-
-    } catch (error) {
-        loading.classList.remove('active');
-        alert(`Ошибка соединения: ${error.message}`);
-    }
+    setLabelPreviewFromFile(file);
+    await uploadLabelFile(file);
 }
 
 // Переход к блоку INCI (с обновлением purpose и application в базе)
 async function proceedToInci() {
+    if (!checkAuth()) return;
+
     const purpose = document.getElementById('purpose').value.trim();
     const application = document.getElementById('application').value.trim();
 
@@ -355,15 +407,41 @@ async function proceedToInci() {
         return;
     }
 
-    // Сохраняем в состояние
-    currentCard.purpose = purpose;
-    currentCard.application = application;
+    const proceedBtn = document.getElementById('proceedInciBtn');
+    const originalText = proceedBtn.textContent;
+    proceedBtn.disabled = true;
+    proceedBtn.textContent = 'Сохраняем...';
 
-    // Обновляем в Google Sheets через API
-    // TODO: добавить отдельный endpoint для обновления purpose/application
-    // Пока просто переходим к следующему блоку
+    try {
+        const response = await fetch(`/api/cards/${currentCard.cardId}/info`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            body: JSON.stringify({ purpose, application })
+        });
 
-    showBlock(3);
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(`Ошибка сохранения: ${data.error}`);
+            proceedBtn.disabled = false;
+            proceedBtn.textContent = originalText;
+            return;
+        }
+
+        // Сохраняем в состояние после успешного обновления
+        currentCard.purpose = purpose;
+        currentCard.application = application;
+
+        showBlock(3);
+    } catch (error) {
+        alert(`Ошибка соединения: ${error.message}`);
+    } finally {
+        proceedBtn.disabled = false;
+        proceedBtn.textContent = originalText;
+    }
 }
 
 // ====================
@@ -441,36 +519,35 @@ function setUploadMethod(type, method) {
     }
 }
 
-// Обработка загрузки файла этикетки (автозагрузка)
-async function handleLabelFile() {
-    const fileInput = document.getElementById('labelFile');
-    const file = fileInput.files[0];
-
-    if (!file) return;
-
-    const preview = document.getElementById('labelPreview');
-    preview.classList.add('has-file');
-    preview.innerHTML = `
-        <div class="file-item">
-            <span class="file-item-name">📋 ${file.name}</span>
-            <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
-        </div>
-    `;
-
-    // Автоматически загружаем
-    await uploadLabelFile(file);
-}
-
 function clearLabelFile() {
-    document.getElementById('labelFile').value = '';
+    const fileInput = document.getElementById('labelFile');
     const preview = document.getElementById('labelPreview');
-    preview.classList.remove('has-file');
-    preview.innerHTML = `<p style="text-align:center; color: #666;">Выберите способ загрузки</p>`;
+
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    revokeLabelPreviewUrl();
+    currentCard.labelMimeType = '';
+    currentCard.labelFileName = '';
+
+    if (preview) {
+        preview.classList.remove('has-file');
+        preview.classList.add('hidden');
+        preview.innerHTML = `<p style="text-align:center; color: #666;">Выберите способ загрузки</p>`;
+    }
 }
 
 async function uploadLabelFile(file) {
     const loading = document.getElementById('loading2');
     const results = document.getElementById('labelResults');
+
+    if (file) {
+        currentCard.labelFileName = currentCard.labelFileName || file.name || '';
+        if (!currentCard.labelMimeType) {
+            currentCard.labelMimeType = guessMimeType(file.name || '', file.type || '');
+        }
+    }
 
     loading.classList.add('active');
     results.classList.add('hidden');
@@ -640,13 +717,22 @@ async function handleLabelFromText() {
 function showLabelResults(data) {
     const resultContent = document.getElementById('labelResultsContent');
     const results = document.getElementById('labelResults');
+    const previewSource = getLabelPreviewSource(data);
+    const previewHtml = previewSource
+        ? buildFilePreviewHtml(previewSource.url, previewSource.mimeType, previewSource.fileName)
+        : '';
+    const labelLinkHtml = data.labelLink
+        ? `<p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>`
+        : '';
 
     resultContent.innerHTML = `
+        ${previewHtml}
         ${data.labelFileName ? `<p><strong>📎 Файл:</strong> ${data.labelFileName}</p>` : ''}
-        ${data.labelLink ? `<p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>` : ''}
+        ${labelLinkHtml}
         ${data.labelInfo ? `<p><strong>ℹ️ Информация:</strong> ${data.labelInfo}</p>` : ''}
         ${data.aiSuggestions?.purpose ? `<p><strong>💡 Назначение:</strong> ${data.aiSuggestions.purpose}</p>` : ''}
         ${data.aiSuggestions?.application ? `<p><strong>💡 Применение:</strong> ${data.aiSuggestions.application}</p>` : ''}
+        ${(data.aiSuggestions?.purpose || data.aiSuggestions?.application) ? '<p style="color: #28a745; margin-top: 10px;">✅ Поля "Назначение" и "Применение" автоматически заполнены</p>' : ''}
     `;
     results.classList.remove('hidden');
 
@@ -923,16 +1009,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileName = `label-pasted-${Date.now()}.png`;
                 const file = new File([blob], fileName, { type: blob.type });
 
-                // Показываем превью
-                labelPreview.classList.add('has-file');
-                labelPreview.innerHTML = `
-                    <div class="file-item">
-                        <span class="file-item-name">📋 ${fileName} (из буфера)</span>
-                        <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
-                    </div>
-                `;
-
-                // Автоматически загружаем
+                setLabelPreviewFromFile(file);
                 await uploadLabelFile(file);
                 return;
             }

@@ -180,6 +180,27 @@ class SheetsService {
   }
 
   /**
+   * Обновляет Назначение и Применение (столбцы G и H)
+   * @param {number} rowNumber - Номер строки (1-based)
+   * @param {string} purpose - Значение для столбца G
+   * @param {string} application - Значение для столбца H
+   */
+  async updatePurposeAndApplication(rowNumber, purpose, application) {
+    await this.initialize();
+
+    const values = [[purpose, application]];
+
+    await this.sheets.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${this.sheetName}!G${rowNumber}:H${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    console.log(`✅ Purpose/Application updated for row ${rowNumber}`);
+  }
+
+  /**
    * Обновляет информацию об этикетке (ссылка и извлеченная информация)
    * @param {number} rowNumber - Номер строки (1-based)
    * @param {string} labelLink - Ссылка на файл этикетки
