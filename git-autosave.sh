@@ -8,7 +8,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
 cd -- "$SCRIPT_DIR"
 
 PORT="${PORT:-3000}"
-SERVER_CMD="${SERVER_CMD:-node src/server.js}"
+NODE_BIN="$(command -v node || true)"
+SERVER_BIN="${NODE_BIN:-/usr/local/bin/node}"
+SERVER_CMD="${SERVER_CMD:-${SERVER_BIN} ${SCRIPT_DIR}/src/server.js}"
+SERVER_ENV="BIND_HOST=${BIND_HOST:-127.0.0.1} PORT=${PORT}"
 LOG_FILE="${SCRIPT_DIR}/server.log"
 PID_FILE="${SCRIPT_DIR}/.server.pid"
 
@@ -22,10 +25,16 @@ restart_server() {
     sleep 1
   fi
 
-  echo "Запускаю сервер: ${SERVER_CMD}"
-  nohup ${SERVER_CMD} > "${LOG_FILE}" 2>&1 &
+  echo "Запускаю сервер: ${SERVER_ENV} ${SERVER_CMD}"
+  nohup env ${SERVER_ENV} ${SERVER_CMD} > "${LOG_FILE}" 2>&1 &
   echo $! > "${PID_FILE}"
-  echo "Сервер запущен (PID $(cat "${PID_FILE}")). Логи: ${LOG_FILE}"
+  sleep 1
+
+  if lsof -ti tcp:${PORT} >/dev/null; then
+    echo "Сервер запущен (PID $(cat "${PID_FILE}")). Логи: ${LOG_FILE}"
+  else
+    echo "⚠️ Сервер не открыл порт ${PORT}. Проверьте ${LOG_FILE}"
+  fi
 }
 
 # Проверяем, есть ли изменения
