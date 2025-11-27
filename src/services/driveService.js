@@ -85,24 +85,69 @@ class DriveService {
   async uploadFile(fileName, fileBuffer, mimeType, folderId) {
     await this.initialize();
 
-    const fileMetadata = {
-      name: fileName,
-      parents: [folderId]
-    };
+    try {
+      // WORKAROUND: Create file WITHOUT parent first, then move it
+      // This avoids the "Service Accounts do not have storage quota" error
+      console.log(`📤 Creating file without parent first...`);
 
-    const media = {
-      mimeType: mimeType,
-      body: require('stream').Readable.from(fileBuffer)
-    };
+      const fileMetadata = {
+        name: fileName
+        // NO parents initially!
+      };
 
-    const response = await this.drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, name, webViewLink',
-      ...this.getCreateOptions()
-    });
+      const media = {
+        mimeType: mimeType,
+        body: require('stream').Readable.from(fileBuffer)
+      };
 
-    return response.data.id;
+      const response = await this.drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: 'id, name, webViewLink',
+        ...this.getCreateOptions()
+      });
+
+      const fileId = response.data.id;
+      console.log(`✅ File created: ${fileId}`);
+
+      // Now move the file to the target folder
+      console.log(`📦 Moving file to folder ${folderId}...`);
+
+      await this.drive.files.update({
+        fileId: fileId,
+        addParents: folderId,
+        fields: 'id, parents',
+        ...this.getCreateOptions()
+      });
+
+      console.log(`✅ File moved successfully`);
+      return fileId;
+
+    } catch (error) {
+      console.error(`❌ Upload failed:`, error.message);
+
+      // If still fails, try the old method
+      console.log(`⚠️ Trying fallback method with parent...`);
+
+      const fileMetadata = {
+        name: fileName,
+        parents: [folderId]
+      };
+
+      const media = {
+        mimeType: mimeType,
+        body: require('stream').Readable.from(fileBuffer)
+      };
+
+      const response = await this.drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: 'id, name, webViewLink',
+        ...this.getCreateOptions()
+      });
+
+      return response.data.id;
+    }
   }
 
   /**
