@@ -11,7 +11,7 @@ const { authMiddleware } = require('./auth');
 // Multer configuration for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB per file
   fileFilter: (req, file, cb) => {
     const allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (allowedMimes.includes(file.mimetype) || file.mimetype.startsWith('image/')) {
@@ -117,53 +117,63 @@ router.post('/create', authMiddleware, async (req, res) => {
  * - Suggests purpose and application
  * - Updates columns E and F in Sheets
  */
-router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async (req, res) => {
+router.post('/:cardId/label', authMiddleware, upload.array('labelFile', 10), async (req, res) => {
   try {
     const { cardId } = req.params;
     const { cardFolderId, productName } = req.body;
 
     console.log(`🏷️ Uploading label for card: ${cardId}`);
 
-    if (!req.file) {
+    const files = req.files || [];
+
+    if (!files.length) {
       return res.status(400).json({
         success: false,
         error: 'Файл этикетки не загружен'
       });
     }
 
-    // Upload label file to Drive
-    const fileExtension = req.file.originalname.split('.').pop();
-    const labelFileName = `Этикетка ${productName}.${fileExtension}`;
+    const labelFilesMeta = [];
+    const imageAttachments = [];
+    let aggregatedLabelText = '';
 
-    const labelFileId = await driveService.uploadFile(
-      labelFileName,
-      req.file.buffer,
-      req.file.mimetype,
-      cardFolderId
-    );
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExtension = file.originalname.split('.').pop();
+      const suffix = files.length > 1 ? ` (${i + 1})` : '';
+      const labelFileName = `Этикетка ${productName}${suffix}.${fileExtension}`;
 
-    const labelLink = driveService.getFileUrl(labelFileId);
+      const labelFileId = await driveService.uploadFile(
+        labelFileName,
+        file.buffer,
+        file.mimetype,
+        cardFolderId
+      );
 
-    console.log(`📤 Label uploaded: ${labelFileName}`);
+      const labelLink = driveService.getFileUrl(labelFileId);
+      labelFilesMeta.push({ name: labelFileName, link: labelLink, mimeType: file.mimetype });
 
-    // Extract text from label if it's a PDF
-    let labelText = '';
-    try {
-      if (req.file.mimetype === 'application/pdf') {
-        const pdfData = await pdfParse(req.file.buffer);
-        labelText = pdfData.text.trim();
-        console.log(`📝 Extracted ${labelText.length} characters from PDF`);
+      console.log(`📤 Label uploaded: ${labelFileName}`);
+
+      try {
+        if (file.mimetype === 'application/pdf') {
+          const pdfData = await pdfParse(file.buffer);
+          const labelText = pdfData.text.trim();
+          aggregatedLabelText += (aggregatedLabelText ? '\n\n' : '') + labelText;
+          console.log(`📝 Extracted ${labelText.length} characters from PDF ${labelFileName}`);
+        } else if (file.mimetype.startsWith('image/')) {
+          imageAttachments.push({ buffer: file.buffer, mimeType: file.mimetype });
+        }
+      } catch (error) {
+        console.error('⚠️ PDF/image parsing error:', error.message);
       }
-    } catch (error) {
-      console.error('⚠️ PDF parsing error:', error.message);
     }
 
     // Process with AI (label analysis)
     console.log(`🤖 Processing label with AI...`);
     const aiResult = await aiService.analyzeLabelOnly(
-      { productName, labelText },
-      req.file.buffer,
-      req.file.mimetype
+      { productName, labelText: aggregatedLabelText },
+      imageAttachments
     );
 
     // Update Sheets with label link and AI-extracted info
@@ -175,7 +185,7 @@ router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async 
 
       await sheetsService.updateLabelInfo(
         cardRow.rowNumber,
-        labelLink,
+        labelFilesMeta[0]?.link || '',
         labelInfo
       );
 
@@ -195,8 +205,9 @@ router.post('/:cardId/label', authMiddleware, upload.single('labelFile'), async 
 
     res.json({
       success: true,
-      labelLink,
-      labelFileName,
+      labelLink: labelFilesMeta[0]?.link || '',
+      labelFileName: labelFilesMeta.map(f => f.name).join(', '),
+      labelFiles: labelFilesMeta,
       aiSuggestions: {
         purpose: (aiResult.suggestedPurpose || '').trim(),
         application: (aiResult.suggestedApplication || '').trim()

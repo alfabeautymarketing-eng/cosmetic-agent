@@ -326,18 +326,19 @@
             overflow: hidden;
             background: white;
             border: 1px solid #e0e0e0;
+            height: 100%;
         }
 
         .file-embed img {
             width: 100%;
             display: block;
-            max-height: 360px;
+            height: 100%;
             object-fit: contain;
         }
 
         .file-embed iframe {
             width: 100%;
-            height: 360px;
+            height: 100%;
             border: none;
         }
 
@@ -841,7 +842,7 @@
                             <button class="upload-btn" onclick="showLabelTextInput()">✏️ Текст</button>
                         </div>
 
-                        <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleLabelFile()">
+                        <input type="file" id="labelFile" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none" onchange="handleLabelFile()">
 
                         <!-- Link input modal -->
                         <div class="link-input-container hidden" id="labelLinkInput" style="margin-top: 15px;">

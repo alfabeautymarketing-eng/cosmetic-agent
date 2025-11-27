@@ -49,9 +49,11 @@ app.use((err, req, res, next) => {
   });
 });
 
+const HOST = process.env.BIND_HOST || '127.0.0.1';
+
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Cosmetic Agent running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Cosmetic Agent running on http://${HOST}:${PORT}`);
   console.log(`📁 Google Drive Folder: ${process.env.GOOGLE_DRIVE_FOLDER_ID}`);
   console.log(`📊 Google Sheet ID: ${process.env.GOOGLE_SHEET_ID || 'Not set'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);

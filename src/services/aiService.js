@@ -75,13 +75,12 @@ class AiService {
   }
 
   /**
-   * Analyzes label only to extract information and suggest purpose/application
+   * Analyzes label attachments to extract information and suggest purpose/application
    * @param {Object} data - Product data with label text
-   * @param {Buffer} imageBuffer - Label image buffer
-   * @param {string} mimeType - Image mime type
+   * @param {Array<{buffer: Buffer, mimeType: string}>} attachments - Optional attachments (images)
    * @returns {Promise<Object>} - Extracted label data
    */
-  async analyzeLabelOnly(data, imageBuffer, mimeType) {
+  async analyzeLabelOnly(data, attachments = []) {
     if (!this.genAI) {
       return {
         labelInfo: 'AI не настроен (отсутствует GEMINI_API_KEY)',
@@ -130,18 +129,22 @@ class AiService {
         Ваша цель - СОХРАНИТЬ оригинальный текст, а не улучшить или сократить его.
       `;
 
-      let result;
-      if (imageBuffer) {
-        const imagePart = {
-          inlineData: {
-            data: imageBuffer.toString('base64'),
-            mimeType: mimeType,
-          },
-        };
-        result = await this.model.generateContent([prompt, imagePart]);
-      } else {
-        result = await this.model.generateContent(prompt);
-      }
+      const contentParts = [prompt];
+
+      attachments
+        .filter(file => file && file.buffer && file.mimeType && file.mimeType.startsWith('image/'))
+        .forEach(file => {
+          contentParts.push({
+            inlineData: {
+              data: file.buffer.toString('base64'),
+              mimeType: file.mimeType
+            }
+          });
+        });
+
+      const result = contentParts.length > 1
+        ? await this.model.generateContent(contentParts)
+        : await this.model.generateContent(prompt);
 
       const response = await result.response;
       const text = response.text();

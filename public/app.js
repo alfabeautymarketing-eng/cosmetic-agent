@@ -356,6 +356,18 @@ function getLabelPreviewSource(data) {
         };
     }
 
+    const fileFromResponse = Array.isArray(data?.labelFiles) && data.labelFiles.length
+        ? data.labelFiles[0]
+        : null;
+
+    if (fileFromResponse) {
+        return {
+            url: getDrivePreviewUrl(fileFromResponse.link),
+            mimeType: guessMimeType(fileFromResponse.name),
+            fileName: fileFromResponse.name
+        };
+    }
+
     if (data?.labelLink) {
         return {
             url: getDrivePreviewUrl(data.labelLink),
@@ -387,12 +399,13 @@ function checkInfoFields() {
 // Обработка загрузки файла этикетки (автозагрузка и автозаполнение полей)
 async function handleLabelFile() {
     const fileInput = document.getElementById('labelFile');
-    const file = fileInput.files[0];
+    const files = Array.from(fileInput.files || []);
 
-    if (!file) return;
+    if (!files.length) return;
 
-    setLabelPreviewFromFile(file);
-    await uploadLabelFile(file);
+    const firstFile = files[0];
+    setLabelPreviewFromFile(firstFile);
+    await uploadLabelFile(files);
 }
 
 // Переход к блоку INCI (с обновлением purpose и application в базе)
@@ -538,14 +551,16 @@ function clearLabelFile() {
     }
 }
 
-async function uploadLabelFile(file) {
+async function uploadLabelFile(files) {
     const loading = document.getElementById('loading2');
     const results = document.getElementById('labelResults');
 
-    if (file) {
-        currentCard.labelFileName = currentCard.labelFileName || file.name || '';
+    const uploadFiles = Array.isArray(files) ? files : (files ? [files] : []);
+
+    if (uploadFiles.length) {
+        currentCard.labelFileName = currentCard.labelFileName || uploadFiles[0].name || '';
         if (!currentCard.labelMimeType) {
-            currentCard.labelMimeType = guessMimeType(file.name || '', file.type || '');
+            currentCard.labelMimeType = guessMimeType(uploadFiles[0].name || '', uploadFiles[0].type || '');
         }
     }
 
@@ -554,7 +569,7 @@ async function uploadLabelFile(file) {
 
     try {
         const formData = new FormData();
-        formData.append('labelFile', file);
+        uploadFiles.forEach(f => formData.append('labelFile', f));
         formData.append('cardFolderId', currentCard.cardFolderId);
         formData.append('productName', currentCard.productName);
 
@@ -719,29 +734,57 @@ function showLabelResults(data) {
     const results = document.getElementById('labelResults');
     const previewSource = getLabelPreviewSource(data);
     const previewHtml = previewSource
-        ? buildFilePreviewHtml(previewSource.url, previewSource.mimeType, previewSource.fileName)
-        : '';
-    const labelLinkHtml = data.labelLink
-        ? `<p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>`
-        : '';
+        ? `<div class="label-doc-viewer" style="width:100%; height:70vh;">${buildFilePreviewHtml(previewSource.url, previewSource.mimeType, previewSource.fileName)}</div>`
+        : '<p style="text-align:center; color:#666;">Превью недоступно</p>';
+
+    const fileNames = Array.isArray(data.labelFiles) && data.labelFiles.length
+        ? data.labelFiles.map(f => f.name).join(', ')
+        : (data.labelFileName || '');
+
+    const purposeValue = data.aiSuggestions?.purpose || document.getElementById('purpose').value.trim();
+    const applicationValue = data.aiSuggestions?.application || document.getElementById('application').value.trim();
 
     resultContent.innerHTML = `
-        ${previewHtml}
-        ${data.labelFileName ? `<p><strong>📎 Файл:</strong> ${data.labelFileName}</p>` : ''}
-        ${labelLinkHtml}
-        ${data.labelInfo ? `<p><strong>ℹ️ Информация:</strong> ${data.labelInfo}</p>` : ''}
-        ${data.aiSuggestions?.purpose ? `<p><strong>💡 Назначение:</strong> ${data.aiSuggestions.purpose}</p>` : ''}
-        ${data.aiSuggestions?.application ? `<p><strong>💡 Применение:</strong> ${data.aiSuggestions.application}</p>` : ''}
-        ${(data.aiSuggestions?.purpose || data.aiSuggestions?.application) ? '<p style="color: #28a745; margin-top: 10px;">✅ Поля "Назначение" и "Применение" автоматически заполнены</p>' : ''}
+        <div style="margin-bottom:16px;">
+            ${previewHtml}
+        </div>
+        ${fileNames ? `<p><strong>📎 Файл:</strong> ${fileNames}</p>` : ''}
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:12px;">
+            <div>
+                <label for="label-result-purpose" style="font-weight:600; color:#333;">Назначение</label>
+                <textarea id="label-result-purpose" style="width:100%; min-height:90px; padding:12px; border:2px solid #e0e0e0; border-radius:10px;">${purposeValue}</textarea>
+            </div>
+            <div>
+                <label for="label-result-application" style="font-weight:600; color:#333;">Применение</label>
+                <textarea id="label-result-application" style="width:100%; min-height:90px; padding:12px; border:2px solid #e0e0e0; border-radius:10px;">${applicationValue}</textarea>
+            </div>
+        </div>
+        ${(purposeValue || applicationValue) ? '<p style="color: #28a745; margin-top: 10px;">✅ Поля "Назначение" и "Применение" автоматически заполнены</p>' : ''}
     `;
     results.classList.remove('hidden');
 
-    // Автозаполнение полей если есть данные
-    if (data.aiSuggestions?.purpose) {
-        document.getElementById('purpose').value = data.aiSuggestions.purpose;
+    // Обновляем скрытые поля блока информации
+    if (purposeValue) {
+        document.getElementById('purpose').value = purposeValue;
     }
-    if (data.aiSuggestions?.application) {
-        document.getElementById('application').value = data.aiSuggestions.application;
+    if (applicationValue) {
+        document.getElementById('application').value = applicationValue;
+    }
+
+    // Подключаем синхронизацию редактирования
+    const purposeFieldInline = document.getElementById('label-result-purpose');
+    const applicationFieldInline = document.getElementById('label-result-application');
+    if (purposeFieldInline) {
+        purposeFieldInline.addEventListener('input', () => {
+            document.getElementById('purpose').value = purposeFieldInline.value;
+            checkInfoFields();
+        });
+    }
+    if (applicationFieldInline) {
+        applicationFieldInline.addEventListener('input', () => {
+            document.getElementById('application').value = applicationFieldInline.value;
+            checkInfoFields();
+        });
     }
 
     // Проверяем и показываем кнопку "Загрузить INCI"
@@ -1010,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const file = new File([blob], fileName, { type: blob.type });
 
                 setLabelPreviewFromFile(file);
-                await uploadLabelFile(file);
+                await uploadLabelFile([file]);
                 return;
             }
         }
