@@ -14,6 +14,8 @@ let currentCard = {
     labelFileName: ''
 };
 
+let labelFilesQueue = [];
+
 // Текущий метод загрузки для каждого блока
 let uploadMethods = {
     label: 'file',
@@ -312,31 +314,13 @@ function buildFilePreviewHtml(previewUrl, mimeType, fileName) {
     `;
 }
 
-function renderLabelPreview(previewUrl, mimeType, fileName) {
-    const preview = document.getElementById('labelPreview');
-    if (!preview) return;
-
-    preview.classList.remove('hidden');
-    preview.classList.add('has-file');
-
-    const previewMarkup = buildFilePreviewHtml(previewUrl, mimeType, fileName);
-
-    preview.innerHTML = `
-        <div class="file-item">
-            <span class="file-item-name">📋 ${fileName || 'Файл этикетки'}</span>
-            <span class="file-item-remove" onclick="clearLabelFile()">✕</span>
-        </div>
-        ${previewMarkup}
-    `;
-}
-
 function setLabelPreviewFromFile(file) {
     if (!file) return;
     revokeLabelPreviewUrl();
     currentCard.labelPreviewUrl = URL.createObjectURL(file);
     currentCard.labelMimeType = file.type || guessMimeType(file.name);
     currentCard.labelFileName = file.name;
-    renderLabelPreview(currentCard.labelPreviewUrl, currentCard.labelMimeType, file.name);
+    renderLabelSelectedFiles();
 }
 
 function getDrivePreviewUrl(labelLink) {
@@ -348,14 +332,6 @@ function getDrivePreviewUrl(labelLink) {
 }
 
 function getLabelPreviewSource(data) {
-    if (currentCard.labelPreviewUrl) {
-        return {
-            url: currentCard.labelPreviewUrl,
-            mimeType: currentCard.labelMimeType || guessMimeType(currentCard.labelFileName),
-            fileName: currentCard.labelFileName || data?.labelFileName
-        };
-    }
-
     const fileFromResponse = Array.isArray(data?.labelFiles) && data.labelFiles.length
         ? data.labelFiles[0]
         : null;
@@ -368,6 +344,14 @@ function getLabelPreviewSource(data) {
         };
     }
 
+    if (currentCard.labelPreviewUrl) {
+        return {
+            url: currentCard.labelPreviewUrl,
+            mimeType: currentCard.labelMimeType || guessMimeType(currentCard.labelFileName),
+            fileName: currentCard.labelFileName || data?.labelFileName
+        };
+    }
+
     if (data?.labelLink) {
         return {
             url: getDrivePreviewUrl(data.labelLink),
@@ -377,6 +361,50 @@ function getLabelPreviewSource(data) {
     }
 
     return null;
+}
+
+function renderLabelSelectedFiles() {
+    const preview = document.getElementById('labelPreview');
+    if (!preview) return;
+
+    if (!labelFilesQueue.length) {
+        preview.classList.add('hidden');
+        preview.classList.remove('has-file');
+        preview.innerHTML = `<p style="text-align:center; color: #666;">Выберите способ загрузки</p>`;
+        return;
+    }
+
+    preview.classList.remove('hidden');
+    preview.classList.add('has-file');
+
+    const items = labelFilesQueue
+        .map((file, idx) => `
+            <div class="file-item">
+                <span class="file-item-name">📎 ${file.name}</span>
+                <span class="file-item-remove" onclick="removeLabelFile(${idx})">✕</span>
+            </div>
+        `)
+        .join('');
+
+    preview.innerHTML = items;
+}
+
+function removeLabelFile(index) {
+    if (index < 0 || index >= labelFilesQueue.length) return;
+
+    labelFilesQueue.splice(index, 1);
+
+    const dt = new DataTransfer();
+    labelFilesQueue.forEach(f => dt.items.add(f));
+    const fileInput = document.getElementById('labelFile');
+    if (fileInput) {
+        fileInput.files = dt.files;
+    }
+
+    renderLabelSelectedFiles();
+    if (!labelFilesQueue.length) {
+        clearLabelFile();
+    }
 }
 
 // ====================
@@ -403,8 +431,10 @@ async function handleLabelFile() {
 
     if (!files.length) return;
 
+    labelFilesQueue = files;
     const firstFile = files[0];
     setLabelPreviewFromFile(firstFile);
+    renderLabelSelectedFiles();
     await uploadLabelFile(files);
 }
 
@@ -543,6 +573,7 @@ function clearLabelFile() {
     revokeLabelPreviewUrl();
     currentCard.labelMimeType = '';
     currentCard.labelFileName = '';
+    labelFilesQueue = [];
 
     if (preview) {
         preview.classList.remove('has-file');
@@ -734,11 +765,11 @@ function showLabelResults(data) {
     const results = document.getElementById('labelResults');
     const previewSource = getLabelPreviewSource(data);
     const previewHtml = previewSource
-        ? `<div class="label-doc-viewer" style="width:100%; height:70vh;">${buildFilePreviewHtml(previewSource.url, previewSource.mimeType, previewSource.fileName)}</div>`
+        ? `<div class="label-doc-viewer" style="width:100%; height:80vh;">${buildFilePreviewHtml(previewSource.url, previewSource.mimeType, previewSource.fileName)}</div>`
         : '<p style="text-align:center; color:#666;">Превью недоступно</p>';
 
     const fileNames = Array.isArray(data.labelFiles) && data.labelFiles.length
-        ? data.labelFiles.map(f => f.name).join(', ')
+        ? data.labelFiles.map(f => `<a href="${f.link}" target="_blank" rel="noreferrer">${f.name}</a>`).join(', ')
         : (data.labelFileName || '');
 
     const purposeValue = data.aiSuggestions?.purpose || document.getElementById('purpose').value.trim();
