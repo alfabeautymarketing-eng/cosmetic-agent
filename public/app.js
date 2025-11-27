@@ -498,21 +498,8 @@ async function uploadLabelFile(file) {
             return;
         }
 
-        // Показываем результаты AI
-        const resultContent = document.getElementById('labelResultsContent');
-        resultContent.innerHTML = `
-            <p><strong>📎 Файл:</strong> ${data.labelFileName}</p>
-            <p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>
-            ${data.labelInfo ? `<p><strong>ℹ️ Информация:</strong> ${data.labelInfo}</p>` : ''}
-            ${data.aiSuggestions.purpose ? `<p><strong>💡 Рекомендуемое назначение:</strong> ${data.aiSuggestions.purpose}</p>` : ''}
-            ${data.aiSuggestions.application ? `<p><strong>💡 Рекомендуемое применение:</strong> ${data.aiSuggestions.application}</p>` : ''}
-        `;
-        results.classList.remove('hidden');
-
-        // Переходим к следующему блоку через 2 секунды
-        setTimeout(() => {
-            showBlock(3);
-        }, 2000);
+        // Показываем результаты через универсальную функцию
+        showLabelResults(data);
 
     } catch (error) {
         loading.classList.remove('active');
@@ -520,26 +507,159 @@ async function uploadLabelFile(file) {
     }
 }
 
-async function uploadLabelText() {
-    const text = document.getElementById('labelTextInput').value.trim();
+// Показать поле ввода ссылки
+function showLabelLinkInput() {
+    document.getElementById('labelLinkInput').classList.remove('hidden');
+    document.getElementById('labelTextInput').classList.add('hidden');
+}
+
+// Показать поле ввода текста
+function showLabelTextInput() {
+    document.getElementById('labelTextInput').classList.remove('hidden');
+    document.getElementById('labelLinkInput').classList.add('hidden');
+}
+
+// Вставить из буфера обмена
+async function pasteLabelFromClipboard() {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (!text) {
+            alert('Буфер обмена пуст');
+            return;
+        }
+
+        // Показываем поле текста и вставляем содержимое
+        showLabelTextInput();
+        document.getElementById('labelTextField').value = text;
+
+    } catch (error) {
+        alert('Не удалось прочитать буфер обмена. Используйте кнопку "Текст" и вставьте вручную (Ctrl+V).');
+    }
+}
+
+// Обработка ссылки на этикетку
+async function handleLabelFromLink() {
+    const url = document.getElementById('labelLinkField').value.trim();
+    if (!url) {
+        alert('Введите ссылку на файл');
+        return;
+    }
+
+    const loading = document.getElementById('loading2');
+    const results = document.getElementById('labelResults');
+
+    loading.classList.add('active');
+    results.classList.add('hidden');
+
+    try {
+        // Отправляем ссылку на сервер
+        const response = await fetch(`/api/cards/${currentCard.cardId}/label-url`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            body: JSON.stringify({
+                labelUrl: url,
+                cardFolderId: currentCard.cardFolderId,
+                productName: currentCard.productName
+            })
+        });
+
+        const data = await response.json();
+        loading.classList.remove('active');
+
+        if (!data.success) {
+            alert(`Ошибка: ${data.error || 'Загрузка по ссылке пока не поддерживается. Скачайте файл и загрузите напрямую.'}`);
+            return;
+        }
+
+        // Показываем результаты
+        showLabelResults(data);
+
+        // Скрываем поле ввода
+        document.getElementById('labelLinkInput').classList.add('hidden');
+        document.getElementById('labelLinkField').value = '';
+
+    } catch (error) {
+        loading.classList.remove('active');
+        alert('Ошибка: Загрузка по ссылке пока не реализована на сервере. Скачайте файл и загрузите напрямую.');
+    }
+}
+
+// Обработка текста этикетки
+async function handleLabelFromText() {
+    const text = document.getElementById('labelTextField').value.trim();
     if (!text) {
         alert('Введите текст этикетки');
         return;
     }
 
-    // TODO: Реализовать отправку текста (если backend поддерживает)
-    alert('Загрузка текста этикетки в разработке. Используйте файл или скриншот.');
+    const loading = document.getElementById('loading2');
+    const results = document.getElementById('labelResults');
+
+    loading.classList.add('active');
+    results.classList.add('hidden');
+
+    try {
+        // Отправляем текст на сервер для AI обработки
+        const response = await fetch(`/api/cards/${currentCard.cardId}/label-text`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            body: JSON.stringify({
+                labelText: text,
+                productName: currentCard.productName
+            })
+        });
+
+        const data = await response.json();
+        loading.classList.remove('active');
+
+        if (!data.success) {
+            alert(`Ошибка: ${data.error || 'Обработка текста пока не поддерживается полностью.'}`);
+            return;
+        }
+
+        // Показываем результаты AI
+        showLabelResults(data);
+
+        // Скрываем поле ввода
+        document.getElementById('labelTextInput').classList.add('hidden');
+        document.getElementById('labelTextField').value = '';
+
+    } catch (error) {
+        loading.classList.remove('active');
+        alert('Ошибка: Обработка текста пока не реализована на сервере. Используйте загрузку файла.');
+    }
 }
 
-async function uploadLabelUrl() {
-    const url = document.getElementById('labelUrlInput').value.trim();
-    if (!url) {
-        alert('Введите ссылку');
-        return;
+// Универсальная функция показа результатов этикетки
+function showLabelResults(data) {
+    const resultContent = document.getElementById('labelResultsContent');
+    const results = document.getElementById('labelResults');
+
+    resultContent.innerHTML = `
+        ${data.labelFileName ? `<p><strong>📎 Файл:</strong> ${data.labelFileName}</p>` : ''}
+        ${data.labelLink ? `<p><strong>🔗 Ссылка:</strong> <a href="${data.labelLink}" target="_blank">Открыть в Drive</a></p>` : ''}
+        ${data.labelInfo ? `<p><strong>ℹ️ Информация:</strong> ${data.labelInfo}</p>` : ''}
+        ${data.aiSuggestions?.purpose ? `<p><strong>💡 Назначение:</strong> ${data.aiSuggestions.purpose}</p>` : ''}
+        ${data.aiSuggestions?.application ? `<p><strong>💡 Применение:</strong> ${data.aiSuggestions.application}</p>` : ''}
+    `;
+    results.classList.remove('hidden');
+
+    // Автозаполнение полей если есть данные
+    if (data.aiSuggestions?.purpose) {
+        document.getElementById('purpose').value = data.aiSuggestions.purpose;
+    }
+    if (data.aiSuggestions?.application) {
+        document.getElementById('application').value = data.aiSuggestions.application;
     }
 
-    // TODO: Реализовать отправку URL (если backend поддерживает)
-    alert('Загрузка по ссылке в разработке. Используйте файл или скриншот.');
+    // Проверяем и показываем кнопку "Загрузить INCI"
+    checkInfoFields();
 }
 
 // ====================

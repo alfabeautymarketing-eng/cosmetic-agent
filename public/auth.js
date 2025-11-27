@@ -5,8 +5,18 @@ let currentUser = null;
 let authToken = null;
 
 // Проверка авторизации при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Проверка автоматического входа для тестирования
+    const urlParams = new URLSearchParams(window.location.search);
+    const testUser = urlParams.get('testuser');
+    const autoLoginEmail = localStorage.getItem('autoLoginEmail') || 'alfabeautymarketing@gmail.com';
+
+    if (testUser === '1' && !localStorage.getItem('authToken')) {
+        console.log('🧪 Test mode: Auto-login с', autoLoginEmail);
+        await autoLogin(autoLoginEmail);
+    } else {
+        await checkAuth();
+    }
 });
 
 /**
@@ -43,6 +53,76 @@ async function checkAuth() {
         console.error('Ошибка проверки токена:', error);
         localStorage.removeItem('authToken');
         showAuthButtons();
+    }
+}
+
+/**
+ * Автоматический вход для тестирования
+ * Используется при открытии страницы с ?testuser=1
+ */
+async function autoLogin(email) {
+    console.log('🧪 Начинаем автоматический вход для:', email);
+
+    try {
+        // Шаг 1: Запросить код
+        const loginResponse = await fetch('/api/auth/login/email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (!loginData.success) {
+            console.error('❌ Ошибка запроса кода:', loginData.error);
+            await checkAuth();
+            return;
+        }
+
+        // Получаем код (в development mode сервер возвращает код)
+        const code = loginData.code;
+
+        if (!code) {
+            console.error('❌ Код не получен (возможно, production mode). Используйте ручной вход.');
+            await checkAuth();
+            return;
+        }
+
+        console.log('✅ Код получен:', code);
+
+        // Шаг 2: Подождать 500мс (имитация задержки пользователя)
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Шаг 3: Верифицировать код
+        const verifyResponse = await fetch('/api/auth/register/email/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, code: code.toString() })
+        });
+
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyData.success) {
+            console.error('❌ Ошибка верификации:', verifyData.error);
+            await checkAuth();
+            return;
+        }
+
+        // Шаг 4: Сохранить токен
+        localStorage.setItem('authToken', verifyData.token);
+        authToken = verifyData.token;
+        currentUser = verifyData.user;
+
+        console.log('✅ Автоматический вход выполнен!', currentUser);
+        showUserMenu();
+
+    } catch (error) {
+        console.error('❌ Ошибка автологина:', error);
+        await checkAuth();
     }
 }
 
