@@ -9,6 +9,7 @@ node_modules/
 logs/
 *.log
 npm-debug.log*
+.server.pid
 
 # OS files
 .DS_Store
